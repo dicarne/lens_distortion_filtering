@@ -78,6 +78,7 @@
         gl = canvas.getContext("experimental-webgl");
         gl.viewportWidth = canvas.width;
         gl.viewportHeight = canvas.height;
+        gl.rendercount = 1;
       } catch (e) { }
       if (!gl) {
         alert("Could not initialize WebGL");
@@ -87,6 +88,7 @@
         gl2 = canvas2.getContext("experimental-webgl");
         gl2.viewportWidth = canvas2.width;
         gl2.viewportHeight = canvas2.height;
+        gl.rendercount = 2;
       } catch (e) { }
       if (!gl2) {
         alert("Could not initialize WebGL");
@@ -101,17 +103,6 @@
     }
 
     function webGLStart_inside(igl) {
-      /*
-      var canvas = document.getElementById(name);
-      try {
-        igl = canvas.getContext("experimental-webgl");
-        igl.viewportWidth = canvas.width;
-        igl.viewportHeight = canvas.height;
-      } catch (e) { }
-      if (!igl) {
-        alert("Could not initialize WebGL");
-      }
-      */
       setupQuad(igl);
       initShaders(igl);
       initTexture(igl);
@@ -123,14 +114,10 @@
     }
     // end add
     var fboid;
-    /*
-    var vboId;  // Quad data
-    var vboiId; // Quad indices
-    var indices_count;
-    */
-    //var textureId;
-    //var imageDimensions = [0.0, 0.0];
+
     var alphax = 0.0;
+    var alphax2 = 0.0;
+    var alphay = 0.0;
     var alphay = 0.0;
     var maximum_alpha = 0.25;
     //var shaderProgram;
@@ -346,6 +333,24 @@
             document.getElementById("alphax_value").value = alphax;
           }
         } break;
+        case 'x2': {
+          alphax2 = (value * 0.01) * maximum_alpha;
+          document.getElementById("alphax_value2").value = alphax2;
+          if (same_alpha_factors) {
+            alphay2 = alphax2;
+            document.getElementById("alphay_slider2").value = value;
+            document.getElementById("alphay_value2").value = alphay;
+          }
+        } break;
+        case 'y2': {
+          alphay2 = (value * 0.01) * maximum_alpha;
+          document.getElementById("alphay_value2").value = alphay2;
+          if (same_alpha_factors) {
+            alphax2 = alphay2;
+            document.getElementById("alphax_slider2").value = value;
+            document.getElementById("alphax_value2").value = alphax;
+          }
+        } break;
       }
     }
     // ~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-
@@ -373,10 +378,20 @@
         oninput="adjustAlphaFactor('y', this.value)" />
       <input type="text" id="alphay_value" style="vertical-align:middle; width: 50px; text-align: center;" value="0.0" readonly>
       <br/>
-      <div style="float: left; padding: 20px">
-        <img style="vertical-align:middle;" src="http://marcodiiga.github.io/images/webicon-github-m.png" />
-        <a href="https://github.com/marcodiiga/lens_distortion_filtering">Github Repo</a>
-      </div>
+
+      <input type="checkbox" onchange="same_alpha_factors = this.checked;" checked/>Force square pixels
+      <br/>
+      <br/> Adjust horizontal distortion parameter
+      <br/>
+      <input id="alphax_slider2" type="range" style="vertical-align:middle;" min="0" max="100" value="0" onchange="adjustAlphaFactor('x2', this.value)"
+        oninput="adjustAlphaFactor('x', this.value)" />
+      <input type="text" id="alphax_value" style="vertical-align:middle; width: 50px; text-align: center;" value="0.0" readonly>
+      <br/> Adjust vertical distortion parameter
+      <br/>
+      <input id="alphay_slider2" type="range" style="vertical-align:middle;" min="0" max="100" value="0" onchange="adjustAlphaFactor('y2', this.value)"
+        oninput="adjustAlphaFactor('y', this.value)" />
+      <input type="text" id="alphay_value" style="vertical-align:middle; width: 50px; text-align: center;" value="0.0" readonly>
+      <br/>
     </div>
   </div>
 </body>
