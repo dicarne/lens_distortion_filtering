@@ -71,6 +71,8 @@
     var gl; // gl instance
     // add by dicarne
     var gl2;
+    var glt;
+    var gl3
     function webGLStart() {
 
       var canvas = document.getElementById("filter-canvas");
@@ -93,12 +95,38 @@
       if (!gl2) {
         alert("Could not initialize WebGL");
       }
+      var canvas3 = document.getElementById("filter0-canvas");
+      try {
+        glt = canvas3.getContext("experimental-webgl");
+        glt.viewportWidth = canvas3.width;
+        glt.viewportHeight = canvas3.height;
+        glt.rendercount = 3;
+      } catch (e) { }
+      if (!glt) {
+        alert("Could not initialize WebGL");
+      }
+      var canvas4 = document.getElementById("filter3-canvas");
+      try {
+        gl3 = canvas4.getContext("experimental-webgl");
+        gl3.viewportWidth = canvas4.width;
+        gl3.viewportHeight = canvas4.height;
+        gl3.rendercount = 4;
+      } catch (e) { }
+      if (!glt) {
+        alert("Could not initialize WebGL");
+      }
       gl.mvMatrix = mat4.create(); // Warning: does not default to identity
       gl.pMatrix = mat4.create();  // Warning: does not default to identity    
       gl2.mvMatrix = mat4.create(); // Warning: does not default to identity
       gl2.pMatrix = mat4.create();  // Warning: does not default to identity 
+      glt.mvMatrix = mat4.create(); // Warning: does not default to identity
+      glt.pMatrix = mat4.create();  // Warning: does not default to identity 
+      gl3.mvMatrix = mat4.create(); // Warning: does not default to identity
+      gl3.pMatrix = mat4.create();  // Warning: does not default to identity 
       webGLStart_inside(gl);
       webGLStart_inside(gl2);
+      webGLStart_inside(glt);
+      webGLStart_inside(gl3);
       paintLoop();
     }
 
@@ -159,79 +187,41 @@
     }
 
     function initShaders(igl) {
-      if (igl.rendercount < 3) {
-        var fragmentShader = getShader(igl, "shader-fs");
-        var vertexShader = getShader(igl, "shader-vs");
 
-        ctx = WebGLDebugUtils.makeDebugContext(igl.shaderProgram = igl.createProgram());
-        ctx = WebGLDebugUtils.makeDebugContext(igl.attachShader(igl.shaderProgram, vertexShader));
-        ctx = WebGLDebugUtils.makeDebugContext(igl.attachShader(igl.shaderProgram, fragmentShader));
-        ctx = WebGLDebugUtils.makeDebugContext(igl.linkProgram(igl.shaderProgram));
+      var fragmentShader = getShader(igl, "shader-fs");
+      var vertexShader = getShader(igl, "shader-vs");
 
-        if (!igl.getProgramParameter(igl.shaderProgram, igl.LINK_STATUS)) {
-          alert("Could not initialize shaders");
-        }
+      ctx = WebGLDebugUtils.makeDebugContext(igl.shaderProgram = igl.createProgram());
+      ctx = WebGLDebugUtils.makeDebugContext(igl.attachShader(igl.shaderProgram, vertexShader));
+      ctx = WebGLDebugUtils.makeDebugContext(igl.attachShader(igl.shaderProgram, fragmentShader));
+      ctx = WebGLDebugUtils.makeDebugContext(igl.linkProgram(igl.shaderProgram));
 
-        ctx = WebGLDebugUtils.makeDebugContext(igl.useProgram(igl.shaderProgram));
-
-        // Enable vertex attribute arrays for position, color, uvs
-
-        ctx = WebGLDebugUtils.makeDebugContext(igl.shaderProgram.inPosition = igl.getAttribLocation(igl.shaderProgram, "in_Position"));
-        ctx = WebGLDebugUtils.makeDebugContext(igl.enableVertexAttribArray(igl.shaderProgram.inPosition));
-
-        igl.shaderProgram.inColor = igl.getAttribLocation(igl.shaderProgram, "in_Color");
-        ctx = WebGLDebugUtils.makeDebugContext(igl.enableVertexAttribArray(igl.shaderProgram.inColor));
-
-        igl.shaderProgram.inTextureCoord = igl.getAttribLocation(igl.shaderProgram, "in_TextureCoord");
-        ctx = WebGLDebugUtils.makeDebugContext(igl.enableVertexAttribArray(igl.shaderProgram.inTextureCoord));
-
-        // Bind uniforms for matrices
-        ctx = WebGLDebugUtils.makeDebugContext(igl.shaderProgram.pMatrixUniform = igl.getUniformLocation(igl.shaderProgram, "uPMatrix"));
-        ctx = WebGLDebugUtils.makeDebugContext(igl.shaderProgram.mvMatrixUniform = igl.getUniformLocation(igl.shaderProgram, "uMVMatrix"));
-
-        // Bind uniform for image dimensions and alpha factors
-        ctx = WebGLDebugUtils.makeDebugContext(igl.shaderProgram.imageDimensionsUniform = igl.getUniformLocation(igl.shaderProgram, "image_dimensions"));
-        ctx = WebGLDebugUtils.makeDebugContext(igl.shaderProgram.alphax = igl.getUniformLocation(igl.shaderProgram, "alphax"));
-        ctx = WebGLDebugUtils.makeDebugContext(igl.shaderProgram.alphay = igl.getUniformLocation(igl.shaderProgram, "alphay"));
-      } else {
-        igl.shaderProgram = [];
-
-        for (i = 0; i < 2; i++) {
-          var fragmentShader = getShader(igl, "shader-fs");
-          var vertexShader = getShader(igl, "shader-vs");
-
-          ctx = WebGLDebugUtils.makeDebugContext(igl.shaderProgram.push(igl.createProgram()));
-          ctx = WebGLDebugUtils.makeDebugContext(igl.attachShader(igl.shaderProgram, vertexShader));
-          ctx = WebGLDebugUtils.makeDebugContext(igl.attachShader(igl.shaderProgram, fragmentShader));
-          ctx = WebGLDebugUtils.makeDebugContext(igl.linkProgram(igl.shaderProgram));
-
-          if (!igl.getProgramParameter(igl.shaderProgram, igl.LINK_STATUS)) {
-            alert("Could not initialize shaders");
-          }
-
-          ctx = WebGLDebugUtils.makeDebugContext(igl.useProgram(igl.shaderProgram));
-
-          // Enable vertex attribute arrays for position, color, uvs
-
-          ctx = WebGLDebugUtils.makeDebugContext(igl.shaderProgram.inPosition = igl.getAttribLocation(igl.shaderProgram, "in_Position"));
-          ctx = WebGLDebugUtils.makeDebugContext(igl.enableVertexAttribArray(igl.shaderProgram.inPosition));
-
-          igl.shaderProgram.inColor = igl.getAttribLocation(igl.shaderProgram, "in_Color");
-          ctx = WebGLDebugUtils.makeDebugContext(igl.enableVertexAttribArray(igl.shaderProgram.inColor));
-
-          igl.shaderProgram.inTextureCoord = igl.getAttribLocation(igl.shaderProgram, "in_TextureCoord");
-          ctx = WebGLDebugUtils.makeDebugContext(igl.enableVertexAttribArray(igl.shaderProgram.inTextureCoord));
-
-          // Bind uniforms for matrices
-          ctx = WebGLDebugUtils.makeDebugContext(igl.shaderProgram.pMatrixUniform = igl.getUniformLocation(igl.shaderProgram, "uPMatrix"));
-          ctx = WebGLDebugUtils.makeDebugContext(igl.shaderProgram.mvMatrixUniform = igl.getUniformLocation(igl.shaderProgram, "uMVMatrix"));
-
-          // Bind uniform for image dimensions and alpha factors
-          ctx = WebGLDebugUtils.makeDebugContext(igl.shaderProgram.imageDimensionsUniform = igl.getUniformLocation(igl.shaderProgram, "image_dimensions"));
-          ctx = WebGLDebugUtils.makeDebugContext(igl.shaderProgram.alphax = igl.getUniformLocation(igl.shaderProgram, "alphax"));
-          ctx = WebGLDebugUtils.makeDebugContext(igl.shaderProgram.alphay = igl.getUniformLocation(igl.shaderProgram, "alphay"));
-        }
+      if (!igl.getProgramParameter(igl.shaderProgram, igl.LINK_STATUS)) {
+        alert("Could not initialize shaders");
       }
+
+      ctx = WebGLDebugUtils.makeDebugContext(igl.useProgram(igl.shaderProgram));
+
+      // Enable vertex attribute arrays for position, color, uvs
+
+      ctx = WebGLDebugUtils.makeDebugContext(igl.shaderProgram.inPosition = igl.getAttribLocation(igl.shaderProgram, "in_Position"));
+      ctx = WebGLDebugUtils.makeDebugContext(igl.enableVertexAttribArray(igl.shaderProgram.inPosition));
+
+      igl.shaderProgram.inColor = igl.getAttribLocation(igl.shaderProgram, "in_Color");
+      ctx = WebGLDebugUtils.makeDebugContext(igl.enableVertexAttribArray(igl.shaderProgram.inColor));
+
+      igl.shaderProgram.inTextureCoord = igl.getAttribLocation(igl.shaderProgram, "in_TextureCoord");
+      ctx = WebGLDebugUtils.makeDebugContext(igl.enableVertexAttribArray(igl.shaderProgram.inTextureCoord));
+
+      // Bind uniforms for matrices
+      ctx = WebGLDebugUtils.makeDebugContext(igl.shaderProgram.pMatrixUniform = igl.getUniformLocation(igl.shaderProgram, "uPMatrix"));
+      ctx = WebGLDebugUtils.makeDebugContext(igl.shaderProgram.mvMatrixUniform = igl.getUniformLocation(igl.shaderProgram, "uMVMatrix"));
+
+      // Bind uniform for image dimensions and alpha factors
+      ctx = WebGLDebugUtils.makeDebugContext(igl.shaderProgram.imageDimensionsUniform = igl.getUniformLocation(igl.shaderProgram, "image_dimensions"));
+      ctx = WebGLDebugUtils.makeDebugContext(igl.shaderProgram.alphax = igl.getUniformLocation(igl.shaderProgram, "alphax"));
+      ctx = WebGLDebugUtils.makeDebugContext(igl.shaderProgram.alphay = igl.getUniformLocation(igl.shaderProgram, "alphay"));
+
 
     }
 
@@ -283,7 +273,7 @@
         ctx = WebGLDebugUtils.makeDebugContext(igl.texParameteri(igl.TEXTURE_2D, igl.TEXTURE_MIN_FILTER, igl.LINEAR));
         ctx = WebGLDebugUtils.makeDebugContext(igl.bindTexture(igl.TEXTURE_2D, null));
         //for (var i = 0; i < igl.rendercount; i++) {
-          for (var i = 0; i < 2; i++) {
+        for (var i = 0; i < 2; i++) {
           ctx = WebGLDebugUtils.makeDebugContext(igl.activeTexture(igl.TEXTURE0));
           var texture = igl.createTexture();
           ctx = WebGLDebugUtils.makeDebugContext(igl.bindTexture(igl.TEXTURE_2D, texture));
@@ -323,9 +313,10 @@
     function drawScene(gl) {
       ctx = WebGLDebugUtils.makeDebugContext(gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight));
 
-      if (textureIsSafeToRender == false)
+      if (textureIsSafeToRender == false) {
+        console.log("Still can't render stuff if the texture hasn't been loaded yet");
         return; // Still can't render stuff if the texture hasn't been loaded yet
-
+      }
       // Set matrix uniforms
       mat4.perspective(45, gl.viewportWidth / gl.viewportHeight, 0.1, 100.0, gl.pMatrix);
       mat4.identity(gl.mvMatrix);
@@ -343,22 +334,38 @@
 
       // Bind vertex data and set vertex attributes (as from a VAO)
       ctx = WebGLDebugUtils.makeDebugContext(gl.bindBuffer(gl.ARRAY_BUFFER, gl.vboId));
-      
-      ctx = WebGLDebugUtils.makeDebugContext(gl.uniform1fv(gl.shaderProgram.alphax, new Float32Array([alphax])));
-      ctx = WebGLDebugUtils.makeDebugContext(gl.uniform1fv(gl.shaderProgram.alphay, new Float32Array([alphay])));
-      ctx = WebGLDebugUtils.makeDebugContext(gl.bindFramebuffer(gl.FRAMEBUFFER, gl.FBOs[0]));
-      ctx = WebGLDebugUtils.makeDebugContext(gl.vertexAttribPointer(gl.shaderProgram.inPosition, 4, gl.FLOAT, false, 10 * 4, 0));
-      ctx = WebGLDebugUtils.makeDebugContext(gl.vertexAttribPointer(gl.shaderProgram.inColor, 4, gl.FLOAT, false, 10 * 4, 4 * 4));
-      //ctx = WebGLDebugUtils.makeDebugContext(gl.vertexAttribPointer(gl.shaderProgram.inTextureCoord, 2, gl.FLOAT, false, 10 * 4, 8 * 4));
-      ctx = WebGLDebugUtils.makeDebugContext(gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, gl.vboiId));
-      ctx = WebGLDebugUtils.makeDebugContext(gl.vertexAttribPointer(gl.shaderProgram.inTextureCoord, 2, gl.FLOAT, false, 10 * 4, 8 * 4));
 
-      ctx = WebGLDebugUtils.makeDebugContext(gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT));
-      ctx = WebGLDebugUtils.makeDebugContext(gl.drawElements(gl.TRIANGLES, gl.indices_count, gl.UNSIGNED_SHORT, 0));
-      ctx = WebGLDebugUtils.makeDebugContext(gl.bindTexture(gl.TEXTURE_2D, gl.textures[0]));
+      if (gl.rendercount <= 2) {
+        ctx = WebGLDebugUtils.makeDebugContext(gl.uniform1fv(gl.shaderProgram.alphax, new Float32Array([alphax])));
+        ctx = WebGLDebugUtils.makeDebugContext(gl.uniform1fv(gl.shaderProgram.alphay, new Float32Array([alphay])));
+        ctx = WebGLDebugUtils.makeDebugContext(gl.bindFramebuffer(gl.FRAMEBUFFER, gl.FBOs[0]));
+        ctx = WebGLDebugUtils.makeDebugContext(gl.vertexAttribPointer(gl.shaderProgram.inPosition, 4, gl.FLOAT, false, 10 * 4, 0));
+        ctx = WebGLDebugUtils.makeDebugContext(gl.vertexAttribPointer(gl.shaderProgram.inColor, 4, gl.FLOAT, false, 10 * 4, 4 * 4));
+        //ctx = WebGLDebugUtils.makeDebugContext(gl.vertexAttribPointer(gl.shaderProgram.inTextureCoord, 2, gl.FLOAT, false, 10 * 4, 8 * 4));
+        ctx = WebGLDebugUtils.makeDebugContext(gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, gl.vboiId));
+        ctx = WebGLDebugUtils.makeDebugContext(gl.vertexAttribPointer(gl.shaderProgram.inTextureCoord, 2, gl.FLOAT, false, 10 * 4, 8 * 4));
+
+        ctx = WebGLDebugUtils.makeDebugContext(gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT));
+        ctx = WebGLDebugUtils.makeDebugContext(gl.drawElements(gl.TRIANGLES, gl.indices_count, gl.UNSIGNED_SHORT, 0));
+        ctx = WebGLDebugUtils.makeDebugContext(gl.bindTexture(gl.TEXTURE_2D, gl.textures[0]));
+
+      } else {
+        ctx = WebGLDebugUtils.makeDebugContext(gl.uniform1fv(gl.shaderProgram.alphax, new Float32Array([0])));
+        ctx = WebGLDebugUtils.makeDebugContext(gl.uniform1fv(gl.shaderProgram.alphay, new Float32Array([0])));
+        ctx = WebGLDebugUtils.makeDebugContext(gl.bindFramebuffer(gl.FRAMEBUFFER, gl.FBOs[0]));
+        ctx = WebGLDebugUtils.makeDebugContext(gl.vertexAttribPointer(gl.shaderProgram.inPosition, 4, gl.FLOAT, false, 10 * 4, 0));
+        ctx = WebGLDebugUtils.makeDebugContext(gl.vertexAttribPointer(gl.shaderProgram.inColor, 4, gl.FLOAT, false, 10 * 4, 4 * 4));
+        //ctx = WebGLDebugUtils.makeDebugContext(gl.vertexAttribPointer(gl.shaderProgram.inTextureCoord, 2, gl.FLOAT, false, 10 * 4, 8 * 4));
+        ctx = WebGLDebugUtils.makeDebugContext(gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, gl.vboiId));
+        ctx = WebGLDebugUtils.makeDebugContext(gl.vertexAttribPointer(gl.shaderProgram.inTextureCoord, 2, gl.FLOAT, false, 10 * 4, 8 * 4));
+
+        ctx = WebGLDebugUtils.makeDebugContext(gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT));
+        ctx = WebGLDebugUtils.makeDebugContext(gl.drawElements(gl.TRIANGLES, gl.indices_count, gl.UNSIGNED_SHORT, 0));
+        ctx = WebGLDebugUtils.makeDebugContext(gl.bindTexture(gl.TEXTURE_2D, gl.textures[0]));
+      }
 
       /*---------------------------------------------------------------*/
-      if (gl.rendercount == 2) {
+      if (gl.rendercount == 2 || gl.rendercount == 3) {
         ctx = WebGLDebugUtils.makeDebugContext(gl.uniform1fv(gl.shaderProgram.alphax, new Float32Array([alphax2])));
         ctx = WebGLDebugUtils.makeDebugContext(gl.uniform1fv(gl.shaderProgram.alphay, new Float32Array([alphay2])));
         ctx = WebGLDebugUtils.makeDebugContext(gl.bindFramebuffer(gl.FRAMEBUFFER, gl.FBOs[1]));
@@ -371,7 +378,7 @@
         ctx = WebGLDebugUtils.makeDebugContext(gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT));
         ctx = WebGLDebugUtils.makeDebugContext(gl.drawElements(gl.TRIANGLES, gl.indices_count, gl.UNSIGNED_SHORT, 0));
         ctx = WebGLDebugUtils.makeDebugContext(gl.bindTexture(gl.TEXTURE_2D, gl.textures[1]));
-      }else{
+      } else if (gl.rendercount == 1 || gl.rendercount == 3) {
         ctx = WebGLDebugUtils.makeDebugContext(gl.uniform1fv(gl.shaderProgram.alphax, new Float32Array([0])));
         ctx = WebGLDebugUtils.makeDebugContext(gl.uniform1fv(gl.shaderProgram.alphay, new Float32Array([0])));
         ctx = WebGLDebugUtils.makeDebugContext(gl.bindFramebuffer(gl.FRAMEBUFFER, gl.FBOs[1]));
@@ -385,6 +392,8 @@
         ctx = WebGLDebugUtils.makeDebugContext(gl.drawElements(gl.TRIANGLES, gl.indices_count, gl.UNSIGNED_SHORT, 0));
         ctx = WebGLDebugUtils.makeDebugContext(gl.bindTexture(gl.TEXTURE_2D, gl.textures[1]));
       }
+      gl.pixels = new Uint8Array(gl.textureId.image.width * gl.textureId.image.height * 4);
+      gl.readPixels(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight, gl.RGBA, gl.UNSIGNED_BYTE, gl.pixels);
 
       ctx = WebGLDebugUtils.makeDebugContext(gl.bindFramebuffer(gl.FRAMEBUFFER, null));
 
@@ -394,7 +403,7 @@
       ctx = WebGLDebugUtils.makeDebugContext(gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null));
       ctx = WebGLDebugUtils.makeDebugContext(gl.bindBuffer(gl.ARRAY_BUFFER, null));
       ctx = WebGLDebugUtils.makeDebugContext(gl.bindTexture(gl.TEXTURE_2D, null));
-    /*}*/
+      /*}*/
 
     }
 
@@ -402,7 +411,43 @@
       requestAnimFrame(paintLoop);
       drawScene(gl);
       drawScene(gl2);
+      drawScene(glt);
+      drawScene(gl3);
+      BNB();
     }
+
+    function BNB() {
+      if (gl2.pixels.length <= 1) return;
+      var s1 = [];
+      var s2 = [];
+      var checkarea = 100;
+
+      for (var i = 0; i < 512; i++) {
+        if (i >= checkarea && i < 512 - checkarea) {
+          var centerheigh = Math.abs(256 - i);
+          var leftside = Math.sqrt(checkarea * checkarea - centerheigh * centerheigh);
+          var t = gl2.pixels.slice(512 * 4 * i + leftside * 4, 512 * 4 * i + (512 - leftside) * 4);
+          for (var j = 0; j < t.length - 1; j += 4) {
+            s1.push((t[j] * 299 + t[j + 1] * 587 + t[j + 2] * 114 + 500));
+          }
+          var t2 = glt.pixels.slice(512 * 4 * i + leftside * 4, 512 * 4 * i + (512 - leftside) * 4);
+          for (var j = 0; j < t2.length - 1; j += 4) {
+            s2.push((t2[j] * 299 + t2[j + 1] * 587 + t2[j + 2] * 114 + 500));
+          }
+        }
+
+      }
+      console.log(s1);
+
+      var res = s1.map(function (a, b, c) {
+        return Math.abs(a - s2[b]);
+      });
+      var sumnum = res.reduce(function (total, num) {
+        return total + num;
+      });
+      document.getElementById("resultsum").innerHTML = sumnum;
+    }
+
 
     // ~-~-~-~-~-~-~-~-~- UI related handling routines ~-~-~-~-~-~-~-~-~-
 
@@ -456,6 +501,7 @@
 <body onload="webGLStart();">
   <div style="padding: 10px;">
     <div style="float: left;">
+
       <canvas id="filter-canvas" style="border: none;" width="512" height="512"></canvas>
       <canvas id="filter2-canvas" style="border: none;" width="512" height="512"></canvas>
     </div>
@@ -487,6 +533,20 @@
         oninput="adjustAlphaFactor('y2', this.value)" />
       <input type="text" id="alphay_value2" style="vertical-align:middle; width: 50px; text-align: center;" value="0.0" readonly>
       <br/>
+      <br/>偏差值
+      <span id="resultsum"></span>
+      <br/>
+
+      <div style="float:right;">
+        <br/>原图反畸变后
+        <br/>
+        <canvas style="float:left;" id="filter0-canvas" style="border: none;" width="512" height="512"></canvas>
+      </div>
+      <div style="float:right;">
+          <br/>原图
+          <br/>
+        <canvas id="filter3-canvas" style="border: none;" width="512" height="512"></canvas>
+      </div>
     </div>
   </div>
 </body>
