@@ -269,6 +269,7 @@
     }
 
     function initTexture(igl) {
+      /*
       if (igl.rendercount == 1) {
         ctx = WebGLDebugUtils.makeDebugContext(igl.textureId = igl.createTexture());
 
@@ -284,55 +285,55 @@
         }
         igl.textureId.image.src = "assets/dis.png";
         igl.imageDimensions = new Float32Array([igl.textureId.image.width, igl.textureId.image.height]);
-      } else if (igl.rendercount == 2) {
-        igl.textures = [];
-        igl.rb = [];
-        igl.FBOs = [];
-        ctx = WebGLDebugUtils.makeDebugContext(igl.textureId = igl.createTexture());
-        igl.textureId.image = new Image();
-        igl.textureId.image.src = "assets/dis.png";
-        igl.textureId.image.onload = function () {
-          ctx = WebGLDebugUtils.makeDebugContext(igl.bindTexture(igl.TEXTURE_2D, igl.textureId));
-          ctx = WebGLDebugUtils.makeDebugContext(igl.pixelStorei(igl.UNPACK_FLIP_Y_WEBGL, true));
+      } else if (igl.rendercount == 2) {*/
+      igl.textures = [];
+      igl.rb = [];
+      igl.FBOs = [];
+      ctx = WebGLDebugUtils.makeDebugContext(igl.textureId = igl.createTexture());
+      igl.textureId.image = new Image();
+      igl.textureId.image.src = "assets/dis.png";
+      igl.textureId.image.onload = function () {
+        ctx = WebGLDebugUtils.makeDebugContext(igl.bindTexture(igl.TEXTURE_2D, igl.textureId));
+        ctx = WebGLDebugUtils.makeDebugContext(igl.pixelStorei(igl.UNPACK_FLIP_Y_WEBGL, true));
+        ctx = WebGLDebugUtils.makeDebugContext(igl.texImage2D(igl.TEXTURE_2D, 0, igl.RGBA, igl.RGBA, igl.UNSIGNED_BYTE, igl.textureId.image));
+        ctx = WebGLDebugUtils.makeDebugContext(igl.texParameteri(igl.TEXTURE_2D, igl.TEXTURE_MAG_FILTER, igl.LINEAR));
+        ctx = WebGLDebugUtils.makeDebugContext(igl.texParameteri(igl.TEXTURE_2D, igl.TEXTURE_MIN_FILTER, igl.LINEAR));
+        ctx = WebGLDebugUtils.makeDebugContext(igl.bindTexture(igl.TEXTURE_2D, null));
+        for (var i = 0; i < igl.rendercount; i++) {
+          ctx = WebGLDebugUtils.makeDebugContext(igl.activeTexture(igl.TEXTURE0));
+          var texture = igl.createTexture();
+          ctx = WebGLDebugUtils.makeDebugContext(igl.bindTexture(igl.TEXTURE_2D, texture));
+          //
+
           ctx = WebGLDebugUtils.makeDebugContext(igl.texImage2D(igl.TEXTURE_2D, 0, igl.RGBA, igl.RGBA, igl.UNSIGNED_BYTE, igl.textureId.image));
-          ctx = WebGLDebugUtils.makeDebugContext(igl.texParameteri(igl.TEXTURE_2D, igl.TEXTURE_MAG_FILTER, igl.LINEAR));
+          ctx = WebGLDebugUtils.makeDebugContext(igl.texParameteri(igl.TEXTURE_2D, igl.TEXTURE_WRAP_S, igl.CLAMP_TO_EDGE));
+          ctx = WebGLDebugUtils.makeDebugContext(igl.texParameteri(igl.TEXTURE_2D, igl.TEXTURE_WRAP_T, igl.CLAMP_TO_EDGE));
           ctx = WebGLDebugUtils.makeDebugContext(igl.texParameteri(igl.TEXTURE_2D, igl.TEXTURE_MIN_FILTER, igl.LINEAR));
+          ctx = WebGLDebugUtils.makeDebugContext(igl.texParameteri(igl.TEXTURE_2D, igl.TEXTURE_MAG_FILTER, igl.LINEAR));
+
+          var fb = igl.createFramebuffer();
+          igl.bindFramebuffer(igl.FRAMEBUFFER, fb);
+          igl.framebufferTexture2D(igl.FRAMEBUFFER, igl.COLOR_ATTACHMENT0, igl.TEXTURE_2D, texture, 0);
+
+          var trb = igl.createRenderbuffer();
+          ctx = WebGLDebugUtils.makeDebugContext(igl.bindRenderbuffer(igl.RENDERBUFFER, trb));
+          ctx = WebGLDebugUtils.makeDebugContext(igl.renderbufferStorage(igl.RENDERBUFFER, igl.DEPTH_COMPONENT16, 512, 512));
+          ctx = WebGLDebugUtils.makeDebugContext(igl.framebufferRenderbuffer(igl.FRAMEBUFFER, igl.DEPTH_ATTACHMENT, igl.RENDERBUFFER, trb));
+          ctx = WebGLDebugUtils.makeDebugContext(igl.bindRenderbuffer(igl.RENDERBUFFER, null));
+
+          igl.rb.push(trb);
+          igl.textures.push(texture);
+          igl.FBOs.push(fb);
           ctx = WebGLDebugUtils.makeDebugContext(igl.bindTexture(igl.TEXTURE_2D, null));
-          for (var i = 0; i < 2; i++) {
-            ctx = WebGLDebugUtils.makeDebugContext(igl.activeTexture(igl.TEXTURE0));
-            var texture = igl.createTexture();
-            ctx = WebGLDebugUtils.makeDebugContext(igl.bindTexture(igl.TEXTURE_2D, texture));
-            //
-
-            ctx = WebGLDebugUtils.makeDebugContext(igl.texImage2D(igl.TEXTURE_2D, 0, igl.RGBA, igl.RGBA, igl.UNSIGNED_BYTE, igl.textureId.image));
-            ctx = WebGLDebugUtils.makeDebugContext(igl.texParameteri(igl.TEXTURE_2D, igl.TEXTURE_WRAP_S, igl.CLAMP_TO_EDGE));
-            ctx = WebGLDebugUtils.makeDebugContext(igl.texParameteri(igl.TEXTURE_2D, igl.TEXTURE_WRAP_T, igl.CLAMP_TO_EDGE));
-            ctx = WebGLDebugUtils.makeDebugContext(igl.texParameteri(igl.TEXTURE_2D, igl.TEXTURE_MIN_FILTER, igl.LINEAR));
-            ctx = WebGLDebugUtils.makeDebugContext(igl.texParameteri(igl.TEXTURE_2D, igl.TEXTURE_MAG_FILTER, igl.LINEAR));
-
-            var fb = igl.createFramebuffer();
-            igl.bindFramebuffer(igl.FRAMEBUFFER, fb);
-            igl.framebufferTexture2D(igl.FRAMEBUFFER, igl.COLOR_ATTACHMENT0, igl.TEXTURE_2D, texture, 0);
-
-            var trb = igl.createRenderbuffer();
-            ctx = WebGLDebugUtils.makeDebugContext(igl.bindRenderbuffer(igl.RENDERBUFFER, trb));
-            ctx = WebGLDebugUtils.makeDebugContext(igl.renderbufferStorage(igl.RENDERBUFFER, igl.DEPTH_COMPONENT16, 512, 512));
-            ctx = WebGLDebugUtils.makeDebugContext(igl.framebufferRenderbuffer(igl.FRAMEBUFFER, igl.DEPTH_ATTACHMENT, igl.RENDERBUFFER, trb));
-            ctx = WebGLDebugUtils.makeDebugContext(igl.bindRenderbuffer(igl.RENDERBUFFER, null));
-
-            igl.rb.push(trb);
-            igl.textures.push(texture);
-            igl.FBOs.push(fb);
-            ctx = WebGLDebugUtils.makeDebugContext(igl.bindTexture(igl.TEXTURE_2D, null));
-          }
         }
-
-        igl.imageDimensions = new Float32Array([igl.textureId.image.width, igl.textureId.image.height]);
-
-        //igl.imageDimensions = new Float32Array([igl.textures[1].image.width, igl.textures[1].image.height]);
-
+        textureIsSafeToRender = true;
       }
-      textureIsSafeToRender = true;
+
+      igl.imageDimensions = new Float32Array([igl.textureId.image.width, igl.textureId.image.height]);
+
+
+      /*}*/
+
     }
 
     function drawScene(gl) {
@@ -351,6 +352,7 @@
 
       // Set image dimensions uniform
       ctx = WebGLDebugUtils.makeDebugContext(gl.uniform2fv(gl.shaderProgram.imageDimensionsUniform, gl.imageDimensions));
+      /*
       if (gl.rendercount == 1) {
         ctx = WebGLDebugUtils.makeDebugContext(gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT));
         // Set alpha factors uniforms
@@ -366,7 +368,7 @@
 
         // Bind vertex data and set vertex attributes (as from a VAO)
         ctx = WebGLDebugUtils.makeDebugContext(gl.bindBuffer(gl.ARRAY_BUFFER, gl.vboId));
-        ctx = WebGLDebugUtils.makeDebugContext(gl.vertexAttribPointer(gl.shaderProgram.inPosition, 4, gl.FLOAT, false, 10 * 4 /* 10 floats */, 0));
+        ctx = WebGLDebugUtils.makeDebugContext(gl.vertexAttribPointer(gl.shaderProgram.inPosition, 4, gl.FLOAT, false, 10 * 4 , 0));
         ctx = WebGLDebugUtils.makeDebugContext(gl.vertexAttribPointer(gl.shaderProgram.inColor, 4, gl.FLOAT, false, 10 * 4, 4 * 4));
         ctx = WebGLDebugUtils.makeDebugContext(gl.vertexAttribPointer(gl.shaderProgram.inTextureCoord, 2, gl.FLOAT, false, 10 * 4, 8 * 4));
 
@@ -385,31 +387,31 @@
         ctx = WebGLDebugUtils.makeDebugContext(gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null));
         ctx = WebGLDebugUtils.makeDebugContext(gl.bindBuffer(gl.ARRAY_BUFFER, null));
         ctx = WebGLDebugUtils.makeDebugContext(gl.bindTexture(gl.TEXTURE_2D, null));
-      } else {
-        ctx = WebGLDebugUtils.makeDebugContext(gl.bindTexture(gl.TEXTURE_2D, gl.textureId));
-        ctx = WebGLDebugUtils.makeDebugContext(gl.activeTexture(gl.TEXTURE0));
-        var sampler2D_loc = gl.getUniformLocation(gl.shaderProgram, "texture_diffuse");
+      } else {*/
+      ctx = WebGLDebugUtils.makeDebugContext(gl.bindTexture(gl.TEXTURE_2D, gl.textureId));
+      ctx = WebGLDebugUtils.makeDebugContext(gl.activeTexture(gl.TEXTURE0));
+      var sampler2D_loc = gl.getUniformLocation(gl.shaderProgram, "texture_diffuse");
 
-        ctx = WebGLDebugUtils.makeDebugContext(gl.uniform1i(sampler2D_loc, 0));
+      ctx = WebGLDebugUtils.makeDebugContext(gl.uniform1i(sampler2D_loc, 0));
 
-        // Bind vertex data and set vertex attributes (as from a VAO)
-        ctx = WebGLDebugUtils.makeDebugContext(gl.bindBuffer(gl.ARRAY_BUFFER, gl.vboId));
+      // Bind vertex data and set vertex attributes (as from a VAO)
+      ctx = WebGLDebugUtils.makeDebugContext(gl.bindBuffer(gl.ARRAY_BUFFER, gl.vboId));
 
-        ctx = WebGLDebugUtils.makeDebugContext(gl.uniform1fv(gl.shaderProgram.alphax, new Float32Array([alphax])));
-        ctx = WebGLDebugUtils.makeDebugContext(gl.uniform1fv(gl.shaderProgram.alphay, new Float32Array([alphay])));
-        ctx = WebGLDebugUtils.makeDebugContext(gl.bindFramebuffer(gl.FRAMEBUFFER, gl.FBOs[0]));
-        ctx = WebGLDebugUtils.makeDebugContext(gl.vertexAttribPointer(gl.shaderProgram.inPosition, 4, gl.FLOAT, false, 10 * 4, 0));
-        ctx = WebGLDebugUtils.makeDebugContext(gl.vertexAttribPointer(gl.shaderProgram.inColor, 4, gl.FLOAT, false, 10 * 4, 4 * 4));
-        ctx = WebGLDebugUtils.makeDebugContext(gl.vertexAttribPointer(gl.shaderProgram.inTextureCoord, 2, gl.FLOAT, false, 10 * 4, 8 * 4));
-        ctx = WebGLDebugUtils.makeDebugContext(gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, gl.vboiId));
-        ctx = WebGLDebugUtils.makeDebugContext(gl.vertexAttribPointer(gl.shaderProgram.inTextureCoord, 2, gl.FLOAT, false, 10 * 4, 8 * 4));
+      ctx = WebGLDebugUtils.makeDebugContext(gl.uniform1fv(gl.shaderProgram.alphax, new Float32Array([alphax])));
+      ctx = WebGLDebugUtils.makeDebugContext(gl.uniform1fv(gl.shaderProgram.alphay, new Float32Array([alphay])));
+      ctx = WebGLDebugUtils.makeDebugContext(gl.bindFramebuffer(gl.FRAMEBUFFER, gl.FBOs[0]));
+      ctx = WebGLDebugUtils.makeDebugContext(gl.vertexAttribPointer(gl.shaderProgram.inPosition, 4, gl.FLOAT, false, 10 * 4, 0));
+      ctx = WebGLDebugUtils.makeDebugContext(gl.vertexAttribPointer(gl.shaderProgram.inColor, 4, gl.FLOAT, false, 10 * 4, 4 * 4));
+      ctx = WebGLDebugUtils.makeDebugContext(gl.vertexAttribPointer(gl.shaderProgram.inTextureCoord, 2, gl.FLOAT, false, 10 * 4, 8 * 4));
+      ctx = WebGLDebugUtils.makeDebugContext(gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, gl.vboiId));
+      ctx = WebGLDebugUtils.makeDebugContext(gl.vertexAttribPointer(gl.shaderProgram.inTextureCoord, 2, gl.FLOAT, false, 10 * 4, 8 * 4));
 
-        ctx = WebGLDebugUtils.makeDebugContext(gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT));
-        ctx = WebGLDebugUtils.makeDebugContext(gl.drawElements(gl.TRIANGLES, gl.indices_count, gl.UNSIGNED_SHORT, 0));
-        ctx = WebGLDebugUtils.makeDebugContext(gl.bindTexture(gl.TEXTURE_2D, gl.textures[0]));
+      ctx = WebGLDebugUtils.makeDebugContext(gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT));
+      ctx = WebGLDebugUtils.makeDebugContext(gl.drawElements(gl.TRIANGLES, gl.indices_count, gl.UNSIGNED_SHORT, 0));
+      ctx = WebGLDebugUtils.makeDebugContext(gl.bindTexture(gl.TEXTURE_2D, gl.textures[0]));
 
-        /*---------------------------------------------------------------*/
-        
+      /*---------------------------------------------------------------*/
+      if (gl.rendercount == 2) {
         ctx = WebGLDebugUtils.makeDebugContext(gl.uniform1fv(gl.shaderProgram.alphax, new Float32Array([alphax2])));
         ctx = WebGLDebugUtils.makeDebugContext(gl.uniform1fv(gl.shaderProgram.alphay, new Float32Array([alphay2])));
         ctx = WebGLDebugUtils.makeDebugContext(gl.bindFramebuffer(gl.FRAMEBUFFER, gl.FBOs[1]));
@@ -422,16 +424,17 @@
         ctx = WebGLDebugUtils.makeDebugContext(gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT));
         ctx = WebGLDebugUtils.makeDebugContext(gl.drawElements(gl.TRIANGLES, gl.indices_count, gl.UNSIGNED_SHORT, 0));
         ctx = WebGLDebugUtils.makeDebugContext(gl.bindTexture(gl.TEXTURE_2D, gl.textures[1]));
-
-        ctx = WebGLDebugUtils.makeDebugContext(gl.bindFramebuffer(gl.FRAMEBUFFER, null));
-
-        ctx = WebGLDebugUtils.makeDebugContext(gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT));
-        ctx = WebGLDebugUtils.makeDebugContext(gl.drawElements(gl.TRIANGLES, gl.indices_count, gl.UNSIGNED_SHORT, 0));
-
-        ctx = WebGLDebugUtils.makeDebugContext(gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null));
-        ctx = WebGLDebugUtils.makeDebugContext(gl.bindBuffer(gl.ARRAY_BUFFER, null));
-        ctx = WebGLDebugUtils.makeDebugContext(gl.bindTexture(gl.TEXTURE_2D, null));
       }
+
+      ctx = WebGLDebugUtils.makeDebugContext(gl.bindFramebuffer(gl.FRAMEBUFFER, null));
+
+      ctx = WebGLDebugUtils.makeDebugContext(gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT));
+      ctx = WebGLDebugUtils.makeDebugContext(gl.drawElements(gl.TRIANGLES, gl.indices_count, gl.UNSIGNED_SHORT, 0));
+
+      ctx = WebGLDebugUtils.makeDebugContext(gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null));
+      ctx = WebGLDebugUtils.makeDebugContext(gl.bindBuffer(gl.ARRAY_BUFFER, null));
+      ctx = WebGLDebugUtils.makeDebugContext(gl.bindTexture(gl.TEXTURE_2D, null));
+    /*}*/
 
     }
 
@@ -511,8 +514,7 @@
       <input id="alphay_slider" type="range" style="vertical-align:middle;" min="-100" max="100" value="0" onchange="adjustAlphaFactor('y', this.value)"
         oninput="adjustAlphaFactor('y', this.value)" />
       <input type="text" id="alphay_value" style="vertical-align:middle; width: 50px; text-align: center;" value="0.0" readonly>
-      <br/>
-      用于反畸变的畸变参数
+      <br/> 用于反畸变的畸变参数
       <br/>
       <br/> Adjust horizontal distortion parameter
       <br/>
