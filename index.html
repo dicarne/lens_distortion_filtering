@@ -260,16 +260,6 @@
       // Set up VBO with indices data
       ctx = WebGLDebugUtils.makeDebugContext(igl.vboiId = igl.createBuffer());
       ctx = WebGLDebugUtils.makeDebugContext(igl.bindBuffer(igl.ELEMENT_ARRAY_BUFFER, igl.vboiId));
-
-      // use Framebuffer
-      if (igl.rendercount == 2) {
-        igl.FBOs = [];
-
-
-      } else {
-
-      }
-
       var indices = [
         0, 1, 2,
         2, 3, 0
@@ -282,7 +272,6 @@
       if (igl.rendercount == 1) {
         ctx = WebGLDebugUtils.makeDebugContext(igl.textureId = igl.createTexture());
 
-
         igl.textureId.image = new Image();
         igl.textureId.image.onload = function () {
           ctx = WebGLDebugUtils.makeDebugContext(igl.bindTexture(igl.TEXTURE_2D, igl.textureId));
@@ -293,69 +282,54 @@
           ctx = WebGLDebugUtils.makeDebugContext(igl.bindTexture(igl.TEXTURE_2D, null));
 
         }
-        igl.textureId.image.src = "assets/pincushion_distortion.png";
+        igl.textureId.image.src = "assets/dis.png";
         igl.imageDimensions = new Float32Array([igl.textureId.image.width, igl.textureId.image.height]);
       } else if (igl.rendercount == 2) {
         igl.textures = [];
         igl.rb = [];
-        ctx = WebGLDebugUtils.makeDebugContext(igl.textures.push(igl.createTexture()));
-        ctx = WebGLDebugUtils.makeDebugContext(igl.textures.push(igl.createTexture()));
-
-        igl.textures[0].image = new Image();
-        igl.textures[0].image.src = "assets/pincushion_distortion.png";
-        igl.textures[0].image.onload = function () {
-          ctx = WebGLDebugUtils.makeDebugContext(igl.FBOs.push(igl.createFramebuffer()));
-          ctx = WebGLDebugUtils.makeDebugContext(igl.bindFramebuffer(igl.FRAMEBUFFER, igl.FBOs[0]));
-
-          ctx = WebGLDebugUtils.makeDebugContext(igl.rb.push(igl.createRenderbuffer()));
-          ctx = WebGLDebugUtils.makeDebugContext(igl.bindRenderbuffer(igl.RENDERBUFFER, igl.rb[0]));
-          ctx = WebGLDebugUtils.makeDebugContext(igl.renderbufferStorage(igl.RENDERBUFFER, igl.DEPTH_COMPONENT16, 512, 512));
-          ctx = WebGLDebugUtils.makeDebugContext(igl.framebufferRenderbuffer(igl.FRAMEBUFFER, igl.DEPTH_ATTACHMENT, igl.RENDERBUFFER, igl.rb[0]));
-          ctx = WebGLDebugUtils.makeDebugContext(igl.bindRenderbuffer(igl.RENDERBUFFER, null));
-
-          ctx = WebGLDebugUtils.makeDebugContext(igl.activeTexture(igl.TEXTURE0));
-
-          ctx = WebGLDebugUtils.makeDebugContext(igl.bindTexture(igl.TEXTURE_2D, igl.textures[0]));
+        igl.FBOs = [];
+        ctx = WebGLDebugUtils.makeDebugContext(igl.textureId = igl.createTexture());
+        igl.textureId.image = new Image();
+        igl.textureId.image.src = "assets/dis.png";
+        igl.textureId.image.onload = function () {
+          ctx = WebGLDebugUtils.makeDebugContext(igl.bindTexture(igl.TEXTURE_2D, igl.textureId));
           ctx = WebGLDebugUtils.makeDebugContext(igl.pixelStorei(igl.UNPACK_FLIP_Y_WEBGL, true));
-          ctx = WebGLDebugUtils.makeDebugContext(igl.framebufferTexture2D(igl.FRAMEBUFFER, igl.COLOR_ATTACHMENT0, igl.TEXTURE_2D, igl.textures[0], 0));
-          ctx = WebGLDebugUtils.makeDebugContext(igl.texImage2D(igl.TEXTURE_2D, 0, igl.RGBA, igl.RGBA, igl.UNSIGNED_BYTE, igl.textures[0].image));
-          ctx = WebGLDebugUtils.makeDebugContext(igl.texParameteri(igl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE));
-          ctx = WebGLDebugUtils.makeDebugContext(igl.texParameteri(igl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE));
+          ctx = WebGLDebugUtils.makeDebugContext(igl.texImage2D(igl.TEXTURE_2D, 0, igl.RGBA, igl.RGBA, igl.UNSIGNED_BYTE, igl.textureId.image));
           ctx = WebGLDebugUtils.makeDebugContext(igl.texParameteri(igl.TEXTURE_2D, igl.TEXTURE_MAG_FILTER, igl.LINEAR));
           ctx = WebGLDebugUtils.makeDebugContext(igl.texParameteri(igl.TEXTURE_2D, igl.TEXTURE_MIN_FILTER, igl.LINEAR));
           ctx = WebGLDebugUtils.makeDebugContext(igl.bindTexture(igl.TEXTURE_2D, null));
+          for (var i = 0; i < 2; i++) {
+            ctx = WebGLDebugUtils.makeDebugContext(igl.activeTexture(igl.TEXTURE0));
+            var texture = igl.createTexture();
+            ctx = WebGLDebugUtils.makeDebugContext(igl.bindTexture(igl.TEXTURE_2D, texture));
+            //
 
+            ctx = WebGLDebugUtils.makeDebugContext(igl.texImage2D(igl.TEXTURE_2D, 0, igl.RGBA, igl.RGBA, igl.UNSIGNED_BYTE, igl.textureId.image));
+            ctx = WebGLDebugUtils.makeDebugContext(igl.texParameteri(igl.TEXTURE_2D, igl.TEXTURE_WRAP_S, igl.CLAMP_TO_EDGE));
+            ctx = WebGLDebugUtils.makeDebugContext(igl.texParameteri(igl.TEXTURE_2D, igl.TEXTURE_WRAP_T, igl.CLAMP_TO_EDGE));
+            ctx = WebGLDebugUtils.makeDebugContext(igl.texParameteri(igl.TEXTURE_2D, igl.TEXTURE_MIN_FILTER, igl.LINEAR));
+            ctx = WebGLDebugUtils.makeDebugContext(igl.texParameteri(igl.TEXTURE_2D, igl.TEXTURE_MAG_FILTER, igl.LINEAR));
+
+            var fb = igl.createFramebuffer();
+            igl.bindFramebuffer(igl.FRAMEBUFFER, fb);
+            igl.framebufferTexture2D(igl.FRAMEBUFFER, igl.COLOR_ATTACHMENT0, igl.TEXTURE_2D, texture, 0);
+
+            var trb = igl.createRenderbuffer();
+            ctx = WebGLDebugUtils.makeDebugContext(igl.bindRenderbuffer(igl.RENDERBUFFER, trb));
+            ctx = WebGLDebugUtils.makeDebugContext(igl.renderbufferStorage(igl.RENDERBUFFER, igl.DEPTH_COMPONENT16, 512, 512));
+            ctx = WebGLDebugUtils.makeDebugContext(igl.framebufferRenderbuffer(igl.FRAMEBUFFER, igl.DEPTH_ATTACHMENT, igl.RENDERBUFFER, trb));
+            ctx = WebGLDebugUtils.makeDebugContext(igl.bindRenderbuffer(igl.RENDERBUFFER, null));
+
+            igl.rb.push(trb);
+            igl.textures.push(texture);
+            igl.FBOs.push(fb);
+            ctx = WebGLDebugUtils.makeDebugContext(igl.bindTexture(igl.TEXTURE_2D, null));
+          }
         }
 
-        igl.textures[1].image = new Image();
-        igl.textures[1].image.src = "assets/pincushion_distortion.png";
-        igl.textures[1].image.onload = function () {
-          ctx = WebGLDebugUtils.makeDebugContext(igl.FBOs.push(igl.createFramebuffer()));
-          ctx = WebGLDebugUtils.makeDebugContext(igl.bindFramebuffer(igl.FRAMEBUFFER, igl.FBOs[1]));
+        igl.imageDimensions = new Float32Array([igl.textureId.image.width, igl.textureId.image.height]);
 
-          ctx = WebGLDebugUtils.makeDebugContext(igl.rb.push(igl.createRenderbuffer()));
-          ctx = WebGLDebugUtils.makeDebugContext(igl.bindRenderbuffer(igl.RENDERBUFFER, igl.rb[1]));
-          ctx = WebGLDebugUtils.makeDebugContext(igl.renderbufferStorage(igl.RENDERBUFFER, igl.DEPTH_COMPONENT16, 512, 512));
-          ctx = WebGLDebugUtils.makeDebugContext(igl.framebufferRenderbuffer(igl.FRAMEBUFFER, igl.DEPTH_ATTACHMENT, igl.RENDERBUFFER, igl.rb[1]));
-          ctx = WebGLDebugUtils.makeDebugContext(igl.bindRenderbuffer(igl.RENDERBUFFER, null));
-
-          ctx = WebGLDebugUtils.makeDebugContext(igl.activeTexture(igl.TEXTURE0));
-
-          ctx = WebGLDebugUtils.makeDebugContext(igl.bindTexture(igl.TEXTURE_2D, igl.textures[1]));
-          ctx = WebGLDebugUtils.makeDebugContext(igl.pixelStorei(igl.UNPACK_FLIP_Y_WEBGL, true));
-          ctx = WebGLDebugUtils.makeDebugContext(igl.framebufferTexture2D(igl.FRAMEBUFFER, igl.COLOR_ATTACHMENT0, igl.TEXTURE_2D, igl.textures[1], 0));
-          ctx = WebGLDebugUtils.makeDebugContext(igl.texImage2D(igl.TEXTURE_2D, 0, igl.RGBA, igl.RGBA, igl.UNSIGNED_BYTE, igl.textures[1].image));
-          ctx = WebGLDebugUtils.makeDebugContext(igl.texParameteri(igl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE));
-          ctx = WebGLDebugUtils.makeDebugContext(igl.texParameteri(igl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE));
-          ctx = WebGLDebugUtils.makeDebugContext(igl.texParameteri(igl.TEXTURE_2D, igl.TEXTURE_MAG_FILTER, igl.LINEAR));
-          ctx = WebGLDebugUtils.makeDebugContext(igl.texParameteri(igl.TEXTURE_2D, igl.TEXTURE_MIN_FILTER, igl.LINEAR));
-          ctx = WebGLDebugUtils.makeDebugContext(igl.bindTexture(igl.TEXTURE_2D, null));
-
-        }
-
-        igl.imageDimensions = new Float32Array([igl.textures[0].image.width, igl.textures[0].image.height]);
-
-        igl.imageDimensions = new Float32Array([igl.textures[1].image.width, igl.textures[1].image.height]);
+        //igl.imageDimensions = new Float32Array([igl.textures[1].image.width, igl.textures[1].image.height]);
 
       }
       textureIsSafeToRender = true;
@@ -412,6 +386,7 @@
         ctx = WebGLDebugUtils.makeDebugContext(gl.bindBuffer(gl.ARRAY_BUFFER, null));
         ctx = WebGLDebugUtils.makeDebugContext(gl.bindTexture(gl.TEXTURE_2D, null));
       } else {
+        ctx = WebGLDebugUtils.makeDebugContext(gl.bindTexture(gl.TEXTURE_2D, gl.textureId));
         ctx = WebGLDebugUtils.makeDebugContext(gl.activeTexture(gl.TEXTURE0));
         var sampler2D_loc = gl.getUniformLocation(gl.shaderProgram, "texture_diffuse");
 
@@ -423,7 +398,7 @@
         ctx = WebGLDebugUtils.makeDebugContext(gl.uniform1fv(gl.shaderProgram.alphax, new Float32Array([alphax])));
         ctx = WebGLDebugUtils.makeDebugContext(gl.uniform1fv(gl.shaderProgram.alphay, new Float32Array([alphay])));
         ctx = WebGLDebugUtils.makeDebugContext(gl.bindFramebuffer(gl.FRAMEBUFFER, gl.FBOs[0]));
-        ctx = WebGLDebugUtils.makeDebugContext(gl.vertexAttribPointer(gl.shaderProgram.inPosition, 4, gl.FLOAT, false, 10 * 4 , 0));
+        ctx = WebGLDebugUtils.makeDebugContext(gl.vertexAttribPointer(gl.shaderProgram.inPosition, 4, gl.FLOAT, false, 10 * 4, 0));
         ctx = WebGLDebugUtils.makeDebugContext(gl.vertexAttribPointer(gl.shaderProgram.inColor, 4, gl.FLOAT, false, 10 * 4, 4 * 4));
         ctx = WebGLDebugUtils.makeDebugContext(gl.vertexAttribPointer(gl.shaderProgram.inTextureCoord, 2, gl.FLOAT, false, 10 * 4, 8 * 4));
         ctx = WebGLDebugUtils.makeDebugContext(gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, gl.vboiId));
@@ -438,7 +413,7 @@
         ctx = WebGLDebugUtils.makeDebugContext(gl.uniform1fv(gl.shaderProgram.alphax, new Float32Array([alphax2])));
         ctx = WebGLDebugUtils.makeDebugContext(gl.uniform1fv(gl.shaderProgram.alphay, new Float32Array([alphay2])));
         ctx = WebGLDebugUtils.makeDebugContext(gl.bindFramebuffer(gl.FRAMEBUFFER, gl.FBOs[1]));
-        ctx = WebGLDebugUtils.makeDebugContext(gl.vertexAttribPointer(gl.shaderProgram.inPosition, 4, gl.FLOAT, false, 10 * 4 , 0));
+        ctx = WebGLDebugUtils.makeDebugContext(gl.vertexAttribPointer(gl.shaderProgram.inPosition, 4, gl.FLOAT, false, 10 * 4, 0));
         ctx = WebGLDebugUtils.makeDebugContext(gl.vertexAttribPointer(gl.shaderProgram.inColor, 4, gl.FLOAT, false, 10 * 4, 4 * 4));
         ctx = WebGLDebugUtils.makeDebugContext(gl.vertexAttribPointer(gl.shaderProgram.inTextureCoord, 2, gl.FLOAT, false, 10 * 4, 8 * 4));
         ctx = WebGLDebugUtils.makeDebugContext(gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, gl.vboiId));
