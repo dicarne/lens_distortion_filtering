@@ -408,8 +408,8 @@
         ctx = WebGLDebugUtils.makeDebugContext(gl.drawElements(gl.TRIANGLES, gl.indices_count, gl.UNSIGNED_SHORT, 0));
         ctx = WebGLDebugUtils.makeDebugContext(gl.bindTexture(gl.TEXTURE_2D, gl.textures[0]));
 
-        //ctx = WebGLDebugUtils.makeDebugContext(gl.uniform1i(sampler2D_loc2, 0));
-
+        /*---------------------------------------------------------------*/
+        
         ctx = WebGLDebugUtils.makeDebugContext(gl.uniform1fv(gl.shaderProgram.alphax, new Float32Array([alphax2])));
         ctx = WebGLDebugUtils.makeDebugContext(gl.uniform1fv(gl.shaderProgram.alphay, new Float32Array([alphay2])));
         ctx = WebGLDebugUtils.makeDebugContext(gl.bindFramebuffer(gl.FRAMEBUFFER, gl.FBOs[1]));
@@ -493,11 +493,13 @@
 <body onload="webGLStart();">
   <div style="padding: 10px;">
     <div style="float: left;">
-      <canvas id="filter-canvas" style="border: none;" width="500" height="500"></canvas>
-      <canvas id="filter2-canvas" style="border: none;" width="500" height="500"></canvas>
+      <canvas id="filter-canvas" style="border: none;" width="512" height="512"></canvas>
+      <canvas id="filter2-canvas" style="border: none;" width="512" height="512"></canvas>
     </div>
     <div style="float: left; padding: 10px;">
       <input type="checkbox" onchange="same_alpha_factors = this.checked;" checked/>Force square pixels
+      <br/>
+      <br/>用于畸变的畸变参数
       <br/>
       <br/> Adjust horizontal distortion parameter
       <br/>
@@ -510,8 +512,7 @@
         oninput="adjustAlphaFactor('y', this.value)" />
       <input type="text" id="alphay_value" style="vertical-align:middle; width: 50px; text-align: center;" value="0.0" readonly>
       <br/>
-
-      <input type="checkbox" onchange="same_alpha_factors2 = this.checked;" checked/>Force square pixels
+      用于反畸变的畸变参数
       <br/>
       <br/> Adjust horizontal distortion parameter
       <br/>
