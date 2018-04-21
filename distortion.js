@@ -4,7 +4,7 @@ var gl2;
 var glt;
 var gl3
 function webGLStart() {
-
+  reset();
   var canvas = document.getElementById("filter-canvas");
   try {
     gl = canvas.getContext("experimental-webgl");
@@ -320,7 +320,7 @@ function drawScene(gl) {
     ctx = WebGLDebugUtils.makeDebugContext(gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT));
     ctx = WebGLDebugUtils.makeDebugContext(gl.drawElements(gl.TRIANGLES, gl.indices_count, gl.UNSIGNED_SHORT, 0));
     ctx = WebGLDebugUtils.makeDebugContext(gl.bindTexture(gl.TEXTURE_2D, gl.textures[1]));
-  } else if (gl.rendercount == 1 || gl.rendercount == 3) {
+  } else if (gl.rendercount == 1 || gl.rendercount == 4) {
     ctx = WebGLDebugUtils.makeDebugContext(gl.uniform1fv(gl.shaderProgram.alphax, new Float32Array([0])));
     ctx = WebGLDebugUtils.makeDebugContext(gl.uniform1fv(gl.shaderProgram.alphay, new Float32Array([0])));
     ctx = WebGLDebugUtils.makeDebugContext(gl.uniform1fv(gl.shaderProgram.k2x, new Float32Array([0])));
