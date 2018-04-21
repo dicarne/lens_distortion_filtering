@@ -14,6 +14,8 @@
     uniform vec2 image_dimensions;
     uniform float alphax;
     uniform float alphay;
+    uniform float k2x;
+    uniform float k2y;
     
     varying vec4 pass_Color;
     varying vec2 pass_TextureCoord;
@@ -28,11 +30,14 @@
       float r = x*x + y*y;
       
       // Calculate the deflated or inflated new coordinate (reverse transform)
-      float x3 = x / (1.0 - alphax * r);
-		  float y3 = y / (1.0 - alphay * r); 
-			float x2 = x / (1.0 - alphax * (x3 * x3 + y3 * y3));
-			float y2 = y / (1.0 - alphay * (x3 * x3 + y3 * y3));	
+      //float x3 = x / (1.0 - alphax * r);
+		  //float y3 = y / (1.0 - alphay * r); 
+			//float x2 = x / (1.0 - alphax * (x3 * x3 + y3 * y3));
+			//float y2 = y / (1.0 - alphay * (x3 * x3 + y3 * y3));	
       
+      float x2 = x / (1.0 - alphax * r - k2x * r * r);
+      float y2 = y / (1.0 - alphay * r - k2y * r * r);
+
       // Forward transform
       // float x2 = x * (1.0 - alphax * r);
       // float y2 = y * (1.0 - alphay * r);
@@ -147,6 +152,11 @@
     var alphax2 = 0.0;
     var alphay = 0.0;
     var alphay2 = 0.0;
+    var k2x = 0.0;
+    var k2y = 0.0;
+    var k2xa = 0.0;
+    var k2ya = 0.0;
+
     var maximum_alpha = 0.25;
     //var shaderProgram;
     var textureIsSafeToRender = false;
@@ -221,7 +231,8 @@
       ctx = WebGLDebugUtils.makeDebugContext(igl.shaderProgram.imageDimensionsUniform = igl.getUniformLocation(igl.shaderProgram, "image_dimensions"));
       ctx = WebGLDebugUtils.makeDebugContext(igl.shaderProgram.alphax = igl.getUniformLocation(igl.shaderProgram, "alphax"));
       ctx = WebGLDebugUtils.makeDebugContext(igl.shaderProgram.alphay = igl.getUniformLocation(igl.shaderProgram, "alphay"));
-
+      ctx = WebGLDebugUtils.makeDebugContext(igl.shaderProgram.k2x = igl.getUniformLocation(igl.shaderProgram, "k2x"));
+      ctx = WebGLDebugUtils.makeDebugContext(igl.shaderProgram.k2y = igl.getUniformLocation(igl.shaderProgram, "k2y"));
 
     }
 
@@ -338,6 +349,8 @@
       if (gl.rendercount <= 2) {
         ctx = WebGLDebugUtils.makeDebugContext(gl.uniform1fv(gl.shaderProgram.alphax, new Float32Array([alphax])));
         ctx = WebGLDebugUtils.makeDebugContext(gl.uniform1fv(gl.shaderProgram.alphay, new Float32Array([alphay])));
+        ctx = WebGLDebugUtils.makeDebugContext(gl.uniform1fv(gl.shaderProgram.k2x, new Float32Array([k2x])));
+        ctx = WebGLDebugUtils.makeDebugContext(gl.uniform1fv(gl.shaderProgram.k2y, new Float32Array([k2y])));
         ctx = WebGLDebugUtils.makeDebugContext(gl.bindFramebuffer(gl.FRAMEBUFFER, gl.FBOs[0]));
         ctx = WebGLDebugUtils.makeDebugContext(gl.vertexAttribPointer(gl.shaderProgram.inPosition, 4, gl.FLOAT, false, 10 * 4, 0));
         ctx = WebGLDebugUtils.makeDebugContext(gl.vertexAttribPointer(gl.shaderProgram.inColor, 4, gl.FLOAT, false, 10 * 4, 4 * 4));
@@ -352,6 +365,8 @@
       } else {
         ctx = WebGLDebugUtils.makeDebugContext(gl.uniform1fv(gl.shaderProgram.alphax, new Float32Array([0])));
         ctx = WebGLDebugUtils.makeDebugContext(gl.uniform1fv(gl.shaderProgram.alphay, new Float32Array([0])));
+        ctx = WebGLDebugUtils.makeDebugContext(gl.uniform1fv(gl.shaderProgram.k2x, new Float32Array([0])));
+        ctx = WebGLDebugUtils.makeDebugContext(gl.uniform1fv(gl.shaderProgram.k2y, new Float32Array([0])));
         ctx = WebGLDebugUtils.makeDebugContext(gl.bindFramebuffer(gl.FRAMEBUFFER, gl.FBOs[0]));
         ctx = WebGLDebugUtils.makeDebugContext(gl.vertexAttribPointer(gl.shaderProgram.inPosition, 4, gl.FLOAT, false, 10 * 4, 0));
         ctx = WebGLDebugUtils.makeDebugContext(gl.vertexAttribPointer(gl.shaderProgram.inColor, 4, gl.FLOAT, false, 10 * 4, 4 * 4));
@@ -368,6 +383,8 @@
       if (gl.rendercount == 2 || gl.rendercount == 3) {
         ctx = WebGLDebugUtils.makeDebugContext(gl.uniform1fv(gl.shaderProgram.alphax, new Float32Array([alphax2])));
         ctx = WebGLDebugUtils.makeDebugContext(gl.uniform1fv(gl.shaderProgram.alphay, new Float32Array([alphay2])));
+        ctx = WebGLDebugUtils.makeDebugContext(gl.uniform1fv(gl.shaderProgram.k2x, new Float32Array([k2xa])));
+        ctx = WebGLDebugUtils.makeDebugContext(gl.uniform1fv(gl.shaderProgram.k2y, new Float32Array([k2ya])));
         ctx = WebGLDebugUtils.makeDebugContext(gl.bindFramebuffer(gl.FRAMEBUFFER, gl.FBOs[1]));
         ctx = WebGLDebugUtils.makeDebugContext(gl.vertexAttribPointer(gl.shaderProgram.inPosition, 4, gl.FLOAT, false, 10 * 4, 0));
         ctx = WebGLDebugUtils.makeDebugContext(gl.vertexAttribPointer(gl.shaderProgram.inColor, 4, gl.FLOAT, false, 10 * 4, 4 * 4));
@@ -381,6 +398,8 @@
       } else if (gl.rendercount == 1 || gl.rendercount == 3) {
         ctx = WebGLDebugUtils.makeDebugContext(gl.uniform1fv(gl.shaderProgram.alphax, new Float32Array([0])));
         ctx = WebGLDebugUtils.makeDebugContext(gl.uniform1fv(gl.shaderProgram.alphay, new Float32Array([0])));
+        ctx = WebGLDebugUtils.makeDebugContext(gl.uniform1fv(gl.shaderProgram.k2x, new Float32Array([0])));
+        ctx = WebGLDebugUtils.makeDebugContext(gl.uniform1fv(gl.shaderProgram.k2y, new Float32Array([0])));
         ctx = WebGLDebugUtils.makeDebugContext(gl.bindFramebuffer(gl.FRAMEBUFFER, gl.FBOs[1]));
         ctx = WebGLDebugUtils.makeDebugContext(gl.vertexAttribPointer(gl.shaderProgram.inPosition, 4, gl.FLOAT, false, 10 * 4, 0));
         ctx = WebGLDebugUtils.makeDebugContext(gl.vertexAttribPointer(gl.shaderProgram.inColor, 4, gl.FLOAT, false, 10 * 4, 4 * 4));
@@ -413,7 +432,7 @@
       drawScene(gl2);
       drawScene(glt);
       drawScene(gl3);
-      BNB();
+      //BNB();
     }
 
     function BNB() {
@@ -455,41 +474,25 @@
     //var same_alpha_factors2 = true;
     function adjustAlphaFactor(direction, value) { // value should be in range [0;100]
       switch (direction) {
-        case 'x': {
+        case 'k1': {
           alphax = (value * 0.01) * maximum_alpha;
-          document.getElementById("alphax_value").value = alphax;
-          if (same_alpha_factors) {
-            alphay = alphax;
-            document.getElementById("alphay_slider").value = value;
-            document.getElementById("alphay_value").value = alphay;
-          }
+          alphay = alphax;
+          document.getElementById("k1_value").value = alphax;
         } break;
-        case 'y': {
-          alphay = (value * 0.01) * maximum_alpha;
-          document.getElementById("alphay_value").value = alphay;
-          if (same_alpha_factors) {
-            alphax = alphay;
-            document.getElementById("alphax_slider").value = value;
-            document.getElementById("alphax_value").value = alphax;
-          }
+        case 'k2': {
+          k2x = (value * 0.01) * maximum_alpha;
+          k2y = k2x;
+          document.getElementById("k2_value").value = k2x;
         } break;
-        case 'x2': {
+        case 'k1a': {
           alphax2 = (value * 0.01) * maximum_alpha;
-          document.getElementById("alphax_value2").value = alphax2;
-          if (same_alpha_factors) {
-            alphay2 = alphax2;
-            document.getElementById("alphay_slider2").value = value;
-            document.getElementById("alphay_value2").value = alphay2;
-          }
+          alphay2 = alphax2;
+          document.getElementById("k1a_value2").value = alphax2;
         } break;
-        case 'y2': {
-          alphay2 = (value * 0.01) * maximum_alpha;
-          document.getElementById("alphay_value2").value = alphay2;
-          if (same_alpha_factors) {
-            alphax2 = alphay2;
-            document.getElementById("alphax_slider2").value = value;
-            document.getElementById("alphax_value2").value = alphax2;
-          }
+        case 'k2a': {
+          k2xa = (value * 0.01) * maximum_alpha;
+          k2ya = k2xa;
+          document.getElementById("k2a_value2").value = k2xa;
         } break;
       }
     }
@@ -500,54 +503,78 @@
 
 <body onload="webGLStart();">
   <div style="padding: 10px;">
-    <div style="float: left;">
-
-      <canvas id="filter-canvas" style="border: none;" width="512" height="512"></canvas>
-      <canvas id="filter2-canvas" style="border: none;" width="512" height="512"></canvas>
-    </div>
-    <div style="float: left; padding: 10px;">
-      <input type="checkbox" onchange="same_alpha_factors = this.checked;" checked/>Force square pixels
-      <br/>
-      <br/>用于畸变的畸变参数
-      <br/>
-      <br/> Adjust horizontal distortion parameter
-      <br/>
-      <input id="alphax_slider" type="range" style="vertical-align:middle;" min="-100" max="100" value="0" onchange="adjustAlphaFactor('x', this.value)"
-        oninput="adjustAlphaFactor('x', this.value)" />
-      <input type="text" id="alphax_value" style="vertical-align:middle; width: 50px; text-align: center;" value="0.0" readonly>
-      <br/> Adjust vertical distortion parameter
-      <br/>
-      <input id="alphay_slider" type="range" style="vertical-align:middle;" min="-100" max="100" value="0" onchange="adjustAlphaFactor('y', this.value)"
-        oninput="adjustAlphaFactor('y', this.value)" />
-      <input type="text" id="alphay_value" style="vertical-align:middle; width: 50px; text-align: center;" value="0.0" readonly>
-      <br/> 用于反畸变的畸变参数
-      <br/>
-      <br/> Adjust horizontal distortion parameter
-      <br/>
-      <input id="alphax_slider2" type="range" style="vertical-align:middle;" min="-100" max="100" value="0" onchange="adjustAlphaFactor('x2', this.value)"
-        oninput="adjustAlphaFactor('x2', this.value)" />
-      <input type="text" id="alphax_value2" style="vertical-align:middle; width: 50px; text-align: center;" value="0.0" readonly>
-      <br/> Adjust vertical distortion parameter
-      <br/>
-      <input id="alphay_slider2" type="range" style="vertical-align:middle;" min="-100" max="100" value="0" onchange="adjustAlphaFactor('y2', this.value)"
-        oninput="adjustAlphaFactor('y2', this.value)" />
-      <input type="text" id="alphay_value2" style="vertical-align:middle; width: 50px; text-align: center;" value="0.0" readonly>
-      <br/>
-      <br/>偏差值
-      <span id="resultsum"></span>
-      <br/>
-
-      <div style="float:right;">
-        <br/>原图反畸变后
+    <div>
+      <!-- 
+        <input type="checkbox" onchange="same_alpha_factors = this.checked;" checked/>Force square pixels 
+      -->
+      <div style="float: left;">
         <br/>
-        <canvas style="float:left;" id="filter0-canvas" style="border: none;" width="512" height="512"></canvas>
+        <br/>用于畸变的畸变参数
+        <br/>
+        <br/> k1
+        <br/>
+        <input id="k1_slider" type="range" style="vertical-align:middle;" min="-100" max="100" value="0" onchange="adjustAlphaFactor('k1', this.value)"
+          oninput="adjustAlphaFactor('k1', this.value)" />
+        <input type="text" id="k1_value" style="vertical-align:middle; width: 50px; text-align: center;" value="0.0" readonly>
+        <br/> k2
+        <br/>
+        <input id="k2_slider" type="range" style="vertical-align:middle;" min="-100" max="100" value="0" onchange="adjustAlphaFactor('k2', this.value)"
+          oninput="adjustAlphaFactor('k2', this.value)" />
+        <input type="text" id="k2_value" style="vertical-align:middle; width: 50px; text-align: center;" value="0.0" readonly>
+      </div>
+      <div style="float: right;">
+        <br/> 用于反畸变的畸变参数
+        <br/>
+        <br/> k1
+        <br/>
+        <input id="k1a_slider2" type="range" style="vertical-align:middle;" min="-100" max="100" value="0" onchange="adjustAlphaFactor('k1a', this.value)"
+          oninput="adjustAlphaFactor('k1a', this.value)" />
+        <input type="text" id="k1a_value2" style="vertical-align:middle; width: 50px; text-align: center;" value="0.0" readonly>
+        <br/> k2
+        <br/>
+        <input id="k2a_slider2" type="range" style="vertical-align:middle;" min="-100" max="100" value="0" onchange="adjustAlphaFactor('k2a', this.value)"
+          oninput="adjustAlphaFactor('k2a', this.value)" />
+        <input type="text" id="k2a_value2" style="vertical-align:middle; width: 50px; text-align: center;" value="0.0" readonly>
+      </div>
+    </div>
+    <br/>
+    <br/>
+    <br/>
+    <!-- 
+      <br/>偏差值
+      <span id="resultsum"></span> 
+      -->
+    <br/>
+    <br/>
+    <br/>
+    <br/>
+    <br/>
+    <br/>
+    <br/>
+    <div>
+      <div style="float: left;">
+        <br/>原图经过透镜畸变后的图像
+        <br/>
+        <canvas id="filter-canvas" style="border: none;" width="512" height="512"></canvas>
       </div>
       <div style="float:right;">
-          <br/>原图
-          <br/>
+        <br/>图像经过透镜畸变后复原的结果
+        <br/>
+        <canvas id="filter2-canvas" style="border: none;" width="512" height="512"></canvas>
+      </div>
+      <br/>
+      <div style="float:left;">
+        <br/>原图反畸变后
+        <br/>
+        <canvas id="filter0-canvas" style="border: none;" width="512" height="512"></canvas>
+      </div>
+      <div style="float:right;">
+        <br/>原图
+        <br/>
         <canvas id="filter3-canvas" style="border: none;" width="512" height="512"></canvas>
       </div>
     </div>
+  </div>
   </div>
 </body>
 
