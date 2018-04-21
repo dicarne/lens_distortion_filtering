@@ -1,7 +1,7 @@
 #main_panel
 {
-    width: 1100px;
-    height: 2000px;
+    width: 1120px;
+    height: 1700px;
     margin-right: auto;
     margin-left: auto;
     text-align: center;
@@ -12,12 +12,30 @@
     width: 600px;
     height: 200px;
     padding: 15px;
-    margin-right: auto;
-    margin-left: auto;
-    border-style: groove;
     border-color: black;
     border-radius:10px;
-    box-shadow: 10px, 10px, 10px, #888888, inset;
+    box-shadow: 0px 0px 10px 2px #888888;
+    margin: 10px auto 20px auto;
+}
+
+#resetbutton
+{
+    width: 60px;
+    height: 28px;
+    margin: 170px auto auto auto;
+    box-shadow: 0px 2px 6px rgba(0,0,0,0.12), 0px 1px 2px rgba(0,0,0,0.24);
+    border-radius: 2px;
+    background-color: #e9686b;
+    border: none;
+    color: #fff;
+    font-size: 14px;
+    font-family: '微软雅黑';
+    transition: .2s ease-out;
+}
+
+#resetbutton:hover
+{
+    background-color: #bd5152;
 }
 
 .slider_panel
@@ -28,4 +46,18 @@
 .glcanvas
 {
     padding: 15px;
+    border-color: black;
+    border-radius:10px;
+    box-shadow: 0px 0px 10px 2px #888888;
+    margin: 10px 5px 10px 5px;
+}
+
+.canvastag
+{
+    margin: 10px 5px 30px 5px;
+}
+
+.header
+{
+    height: 20px;
 }
