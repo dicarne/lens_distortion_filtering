@@ -497,66 +497,89 @@
         } break;
       }
     }
+
+    function reset() {
+      alphax = 0.0;
+      alphax2 = 0.0;
+      alphay = 0.0;
+      alphay2 = 0.0;
+      k2x = 0.0;
+      k2y = 0.0;
+      k2xa = 0.0;
+      k2ya = 0.0;
+      document.getElementById("k1_value").value = alphax;
+      document.getElementById("k2_value").value = k2x;
+      document.getElementById("k1a_value2").value = alphax2;
+      document.getElementById("k2a_value2").value = k2xa;
+
+      document.getElementById("k1_slider").value = alphax;
+      document.getElementById("k2_slider").value = k2x;
+      document.getElementById("k1a_slider2").value = alphax2;
+      document.getElementById("k2a_slider2").value = k2xa;
+    }
     // ~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-
 
   </script>
 </head>
 
 <body onload="webGLStart();">
+  <div class="header"></div>
   <div id="main_panel">
     <div id="slider_mainbox">
-      <!-- 
-        <input type="checkbox" onchange="same_alpha_factors = this.checked;" checked/>Force square pixels 
-      -->
       <div class="slider_panel" style="float: left;">
-        <br/>用于畸变的畸变参数
-        <br/>
-        <br/> k1
-        <br/>
-        <input id="k1_slider" type="range" style="vertical-align:middle;" min="-100" max="100" value="0" onchange="adjustAlphaFactor('k1', this.value)"
-          oninput="adjustAlphaFactor('k1', this.value)" />
-        <input type="text" id="k1_value" style="vertical-align:middle; width: 50px; text-align: center;" value="0.0" readonly>
-        <br/> k2
-        <br/>
-        <input id="k2_slider" type="range" style="vertical-align:middle;" min="-100" max="100" value="0" onchange="adjustAlphaFactor('k2', this.value)"
-          oninput="adjustAlphaFactor('k2', this.value)" />
-        <input type="text" id="k2_value" style="vertical-align:middle; width: 50px; text-align: center;" value="0.0" readonly>
+        <div class="canvastag">
+          用于畸变的畸变参数
+        </div>
+        <div>k1
+          <br/>
+          <input id="k1_slider" type="range" style="vertical-align:middle;" min="-100" max="100" value="0" onchange="adjustAlphaFactor('k1', this.value)"
+            oninput="adjustAlphaFactor('k1', this.value)" />
+          <input type="text" id="k1_value" style="vertical-align:middle; width: 50px; text-align: center;" value="0.0" readonly>
+        </div>
+        <div>
+          <br/>k2
+          <br/>
+          <input id="k2_slider" type="range" style="vertical-align:middle;" min="-100" max="100" value="0" onchange="adjustAlphaFactor('k2', this.value)"
+            oninput="adjustAlphaFactor('k2', this.value)" />
+          <input type="text" id="k2_value" style="vertical-align:middle; width: 50px; text-align: center;" value="0.0" readonly>
+        </div>
       </div>
       <div class="slider_panel" style="float: right;">
-        <br/> 用于反畸变的畸变参数
-        <br/>
-        <br/> k1
-        <br/>
-        <input id="k1a_slider2" type="range" style="vertical-align:middle;" min="-100" max="100" value="0" onchange="adjustAlphaFactor('k1a', this.value)"
-          oninput="adjustAlphaFactor('k1a', this.value)" />
-        <input type="text" id="k1a_value2" style="vertical-align:middle; width: 50px; text-align: center;" value="0.0" readonly>
-        <br/> k2
-        <br/>
-        <input id="k2a_slider2" type="range" style="vertical-align:middle;" min="-100" max="100" value="0" onchange="adjustAlphaFactor('k2a', this.value)"
-          oninput="adjustAlphaFactor('k2a', this.value)" />
-        <input type="text" id="k2a_value2" style="vertical-align:middle; width: 50px; text-align: center;" value="0.0" readonly>
+        <div class="canvastag">
+          用于反畸变的畸变参数
+        </div>
+        <div>k1
+          <br/>
+          <input id="k1a_slider2" type="range" style="vertical-align:middle;" min="-100" max="100" value="0" onchange="adjustAlphaFactor('k1a', this.value)"
+            oninput="adjustAlphaFactor('k1a', this.value)" />
+          <input type="text" id="k1a_value2" style="vertical-align:middle; width: 50px; text-align: center;" value="0.0" readonly>
+        </div>
+        <div>
+          <br/>k2
+          <br/>
+          <input id="k2a_slider2" type="range" style="vertical-align:middle;" min="-100" max="100" value="0" onchange="adjustAlphaFactor('k2a', this.value)"
+            oninput="adjustAlphaFactor('k2a', this.value)" />
+          <input type="text" id="k2a_value2" style="vertical-align:middle; width: 50px; text-align: center;" value="0.0" readonly>
+        </div>
       </div>
+      <button id="resetbutton" type="button" onclick="reset()">重置</button>
     </div>
     <div>
       <div class="glcanvas" style="float: left;">
-        <br/>原图经过透镜畸变后的图像
-        <br/>
+        <div class="canvastag">原图经过透镜畸变后的图像</div>
         <canvas id="filter-canvas" style="border: none;" width="512" height="512"></canvas>
       </div>
       <div class="glcanvas" style="float:right;">
-        <br/>图像经过透镜畸变后复原的结果
-        <br/>
+        <div class="canvastag">图像经过透镜畸变后复原的结果</div>
         <canvas id="filter2-canvas" style="border: none;" width="512" height="512"></canvas>
       </div>
       <br/>
       <div class="glcanvas" style="float:left;">
-        <br/>原图反畸变后
-        <br/>
+        <div class="canvastag">原图反畸变后</div>
         <canvas id="filter0-canvas" style="border: none;" width="512" height="512"></canvas>
       </div>
       <div class="glcanvas" style="float:right;">
-        <br/>原图
-        <br/>
+        <div class="canvastag">原图</div>
         <canvas id="filter3-canvas" style="border: none;" width="512" height="512"></canvas>
       </div>
     </div>
