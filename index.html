@@ -6,6 +6,7 @@
   <script type="text/javascript" src="utils/glMatrix-0.9.5.min.js"></script>
   <script type="text/javascript" src="utils/webgl-utils.js"></script>
   <script type="text/javascript" src="utils/webgl-debug.js"></script>
+  <link rel="stylesheet" type="text/css" href="modernpanel.css">
 
   <script id="shader-fs" type="x-shader/x-fragment">
     precision mediump float;
@@ -502,13 +503,12 @@
 </head>
 
 <body onload="webGLStart();">
-  <div style="padding: 10px;">
-    <div>
+  <div id="main_panel">
+    <div id="slider_mainbox">
       <!-- 
         <input type="checkbox" onchange="same_alpha_factors = this.checked;" checked/>Force square pixels 
       -->
-      <div style="float: left;">
-        <br/>
+      <div class="slider_panel" style="float: left;">
         <br/>用于畸变的畸变参数
         <br/>
         <br/> k1
@@ -522,7 +522,7 @@
           oninput="adjustAlphaFactor('k2', this.value)" />
         <input type="text" id="k2_value" style="vertical-align:middle; width: 50px; text-align: center;" value="0.0" readonly>
       </div>
-      <div style="float: right;">
+      <div class="slider_panel" style="float: right;">
         <br/> 用于反畸变的畸变参数
         <br/>
         <br/> k1
@@ -537,38 +537,24 @@
         <input type="text" id="k2a_value2" style="vertical-align:middle; width: 50px; text-align: center;" value="0.0" readonly>
       </div>
     </div>
-    <br/>
-    <br/>
-    <br/>
-    <!-- 
-      <br/>偏差值
-      <span id="resultsum"></span> 
-      -->
-    <br/>
-    <br/>
-    <br/>
-    <br/>
-    <br/>
-    <br/>
-    <br/>
     <div>
-      <div style="float: left;">
+      <div class="glcanvas" style="float: left;">
         <br/>原图经过透镜畸变后的图像
         <br/>
         <canvas id="filter-canvas" style="border: none;" width="512" height="512"></canvas>
       </div>
-      <div style="float:right;">
+      <div class="glcanvas" style="float:right;">
         <br/>图像经过透镜畸变后复原的结果
         <br/>
         <canvas id="filter2-canvas" style="border: none;" width="512" height="512"></canvas>
       </div>
       <br/>
-      <div style="float:left;">
+      <div class="glcanvas" style="float:left;">
         <br/>原图反畸变后
         <br/>
         <canvas id="filter0-canvas" style="border: none;" width="512" height="512"></canvas>
       </div>
-      <div style="float:right;">
+      <div class="glcanvas" style="float:right;">
         <br/>原图
         <br/>
         <canvas id="filter3-canvas" style="border: none;" width="512" height="512"></canvas>
