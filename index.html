@@ -82,47 +82,57 @@
 <body onload="webGLStart();">
   <div class="header"></div>
   <div id="main_panel">
-    <div id="slider_mainbox">
-      <div class="slider_panel" style="float: left;">
-        <div class="canvastag">
-          用于畸变的畸变参数
-        </div>
-        <div>k1
-          <br/>
-          <input id="k1_slider" type="range" style="vertical-align:middle;" min="-100" max="100" value="0" onchange="adjustAlphaFactor('k1', this.value)"
-            oninput="adjustAlphaFactor('k1', this.value)" />
-          <input type="text" id="k1_value" style="vertical-align:middle; width: 50px; text-align: center;" value="0.0" readonly>
+    <div class="container">
+      <div id="slider_mainbox">
+        <div class="row">
+          <div class="col-xs-12 col-sm-6">
+            <div class="slider_panel">
+              <div class="canvastag">
+                用于畸变的畸变参数
+              </div>
+              <div>k1
+                <br/>
+                <input id="k1_slider" type="range" style="vertical-align:middle;" min="-100" max="100" value="0" onchange="adjustAlphaFactor('k1', this.value)"
+                  oninput="adjustAlphaFactor('k1', this.value)" />
+                <input type="text" id="k1_value" style="vertical-align:middle; width: 50px; text-align: center;" value="0.0" readonly>
+              </div>
+              <div>
+                <br/>k2
+                <br/>
+                <input id="k2_slider" type="range" style="vertical-align:middle;" min="-100" max="100" value="0" onchange="adjustAlphaFactor('k2', this.value)"
+                  oninput="adjustAlphaFactor('k2', this.value)" />
+                <input type="text" id="k2_value" style="vertical-align:middle; width: 50px; text-align: center;" value="0.0" readonly>
+              </div>
+            </div>
+          </div>
+          <div class="col-xs-12 col-sm-6">
+            <div class="slider_panel">
+              <div class="canvastag">
+                用于反畸变的畸变参数
+              </div>
+              <div>k1
+                <br/>
+                <input id="k1a_slider2" type="range" style="vertical-align:middle;" min="-100" max="100" value="0" onchange="adjustAlphaFactor('k1a', this.value)"
+                  oninput="adjustAlphaFactor('k1a', this.value)" />
+                <input type="text" id="k1a_value2" style="vertical-align:middle; width: 50px; text-align: center;" value="0.0" readonly>
+              </div>
+              <div>
+                <br/>k2
+                <br/>
+                <input id="k2a_slider2" type="range" style="vertical-align:middle;" min="-100" max="100" value="0" onchange="adjustAlphaFactor('k2a', this.value)"
+                  oninput="adjustAlphaFactor('k2a', this.value)" />
+                <input type="text" id="k2a_value2" style="vertical-align:middle; width: 50px; text-align: center;" value="0.0" readonly>
+              </div>
+            </div>
+
+          </div>
         </div>
         <div>
-          <br/>k2
-          <br/>
-          <input id="k2_slider" type="range" style="vertical-align:middle;" min="-100" max="100" value="0" onchange="adjustAlphaFactor('k2', this.value)"
-            oninput="adjustAlphaFactor('k2', this.value)" />
-          <input type="text" id="k2_value" style="vertical-align:middle; width: 50px; text-align: center;" value="0.0" readonly>
+          <button id="resetbutton" type="button" onclick="reset()">重置</button>
         </div>
       </div>
-      <div class="slider_panel" style="float: right;">
-        <div class="canvastag">
-          用于反畸变的畸变参数
-        </div>
-        <div>k1
-          <br/>
-          <input id="k1a_slider2" type="range" style="vertical-align:middle;" min="-100" max="100" value="0" onchange="adjustAlphaFactor('k1a', this.value)"
-            oninput="adjustAlphaFactor('k1a', this.value)" />
-          <input type="text" id="k1a_value2" style="vertical-align:middle; width: 50px; text-align: center;" value="0.0" readonly>
-        </div>
-        <div>
-          <br/>k2
-          <br/>
-          <input id="k2a_slider2" type="range" style="vertical-align:middle;" min="-100" max="100" value="0" onchange="adjustAlphaFactor('k2a', this.value)"
-            oninput="adjustAlphaFactor('k2a', this.value)" />
-          <input type="text" id="k2a_value2" style="vertical-align:middle; width: 50px; text-align: center;" value="0.0" readonly>
-        </div>
-      </div>
-      <button id="resetbutton" type="button" onclick="reset()">重置</button>
     </div>
 
-    
     <!--        -->
     <div class="container">
       <div class="row">
