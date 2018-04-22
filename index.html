@@ -413,7 +413,7 @@
       drawScene(gl2);
       drawScene(glt);
       drawScene(gl3);
-      BNB();
+      //BNB();
     }
 
     function BNB() {
@@ -428,11 +428,11 @@
           var leftside = Math.sqrt(checkarea * checkarea - centerheigh * centerheigh);
           var t = gl2.pixels.slice(512 * 4 * i + leftside * 4, 512 * 4 * i + (512 - leftside) * 4);
           for (var j = 0; j < t.length - 1; j += 4) {
-            s1.push((t[j] * 299 + t[j + 1] * 587 + t[j + 2] * 114 + 500));
+            s1.push(t[j + 1]);
           }
           var t2 = glt.pixels.slice(512 * 4 * i + leftside * 4, 512 * 4 * i + (512 - leftside) * 4);
           for (var j = 0; j < t2.length - 1; j += 4) {
-            s2.push((t2[j] * 299 + t2[j + 1] * 587 + t2[j + 2] * 114 + 500));
+            s2.push(t2[j + 1]);
           }
         }
 
