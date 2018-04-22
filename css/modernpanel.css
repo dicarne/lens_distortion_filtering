@@ -1,6 +1,6 @@
 #main_panel {
-    width: 1120px;
-    height: 1530px;
+    /*width: 1120px;
+    height: 1530px;*/
     margin-right: auto;
     margin-left: auto;
     text-align: center;
@@ -8,7 +8,7 @@
 
 #slider_mainbox {
     width: 600px;
-    height: 200px;
+    height: 250px;
     padding: 15px;
     border-color: black;
     border-radius: 10px;
