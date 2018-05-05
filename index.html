@@ -85,8 +85,11 @@
 			//float x2 = x / (1.0 - alphax * (x3 * x3 + y3 * y3));
 			//float y2 = y / (1.0 - alphay * (x3 * x3 + y3 * y3));	
       
-      float x2 = x / (1.0 - alphax * r - k2x * r * r);
-      float y2 = y / (1.0 - alphay * r - k2y * r * r);
+      //float x2 = x / (1.0 - alphax * r - k2x * r * r);
+      //float y2 = y / (1.0 - alphay * r - k2y * r * r);
+
+      float x2 = x * (1.0 + alphax * r + k2x * r * r);
+      float y2 = y * (1.0 + alphay * r + k2y * r * r);
 
       // Forward transform
       // float x2 = x * (1.0 - alphax * r);
