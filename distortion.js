@@ -175,24 +175,24 @@ function initShaders(igl) {
     // Enable vertex attribute arrays for position, color, uvs
 
     ctx = WebGLDebugUtils.makeDebugContext(igl.shaderProgram2.inPosition = igl.getAttribLocation(igl.shaderProgram2, "in_Position"));
-    ctx = WebGLDebugUtils.makeDebugContext(igl.enableVertexAttribArray(igl.shaderProgram.inPosition));
+    ctx = WebGLDebugUtils.makeDebugContext(igl.enableVertexAttribArray(igl.shaderProgram2.inPosition));
 
-    igl.shaderProgram.inColor = igl.getAttribLocation(igl.shaderProgram, "in_Color");
-    ctx = WebGLDebugUtils.makeDebugContext(igl.enableVertexAttribArray(igl.shaderProgram.inColor));
+    igl.shaderProgram2.inColor = igl.getAttribLocation(igl.shaderProgram2, "in_Color");
+    ctx = WebGLDebugUtils.makeDebugContext(igl.enableVertexAttribArray(igl.shaderProgram2.inColor));
 
-    igl.shaderProgram.inTextureCoord = igl.getAttribLocation(igl.shaderProgram, "in_TextureCoord");
-    ctx = WebGLDebugUtils.makeDebugContext(igl.enableVertexAttribArray(igl.shaderProgram.inTextureCoord));
+    igl.shaderProgram2.inTextureCoord = igl.getAttribLocation(igl.shaderProgram2, "in_TextureCoord");
+    ctx = WebGLDebugUtils.makeDebugContext(igl.enableVertexAttribArray(igl.shaderProgram2.inTextureCoord));
 
     // Bind uniforms for matrices
-    ctx = WebGLDebugUtils.makeDebugContext(igl.shaderProgram.pMatrixUniform = igl.getUniformLocation(igl.shaderProgram, "uPMatrix"));
-    ctx = WebGLDebugUtils.makeDebugContext(igl.shaderProgram.mvMatrixUniform = igl.getUniformLocation(igl.shaderProgram, "uMVMatrix"));
+    ctx = WebGLDebugUtils.makeDebugContext(igl.shaderProgram2.pMatrixUniform = igl.getUniformLocation(igl.shaderProgram2, "uPMatrix"));
+    ctx = WebGLDebugUtils.makeDebugContext(igl.shaderProgram2.mvMatrixUniform = igl.getUniformLocation(igl.shaderProgram2, "uMVMatrix"));
 
     // Bind uniform for image dimensions and alpha factors
-    ctx = WebGLDebugUtils.makeDebugContext(igl.shaderProgram.imageDimensionsUniform = igl.getUniformLocation(igl.shaderProgram, "image_dimensions"));
-    ctx = WebGLDebugUtils.makeDebugContext(igl.shaderProgram.alphax = igl.getUniformLocation(igl.shaderProgram, "alphax"));
-    ctx = WebGLDebugUtils.makeDebugContext(igl.shaderProgram.alphay = igl.getUniformLocation(igl.shaderProgram, "alphay"));
-    ctx = WebGLDebugUtils.makeDebugContext(igl.shaderProgram.k2x = igl.getUniformLocation(igl.shaderProgram, "k2x"));
-    ctx = WebGLDebugUtils.makeDebugContext(igl.shaderProgram.k2y = igl.getUniformLocation(igl.shaderProgram, "k2y"));
+    ctx = WebGLDebugUtils.makeDebugContext(igl.shaderProgram2.imageDimensionsUniform = igl.getUniformLocation(igl.shaderProgram2, "image_dimensions"));
+    ctx = WebGLDebugUtils.makeDebugContext(igl.shaderProgram2.alphax = igl.getUniformLocation(igl.shaderProgram2, "alphax"));
+    ctx = WebGLDebugUtils.makeDebugContext(igl.shaderProgram2.alphay = igl.getUniformLocation(igl.shaderProgram2, "alphay"));
+    ctx = WebGLDebugUtils.makeDebugContext(igl.shaderProgram2.k2x = igl.getUniformLocation(igl.shaderProgram2, "k2x"));
+    ctx = WebGLDebugUtils.makeDebugContext(igl.shaderProgram2.k2y = igl.getUniformLocation(igl.shaderProgram2, "k2y"));
 
 }
 
@@ -287,6 +287,7 @@ function drawScene(gl) {
         console.log("Still can't render stuff if the texture hasn't been loaded yet");
         return;
     }
+    ctx = WebGLDebugUtils.makeDebugContext(gl.useProgram(gl.shaderProgram));
     // Set matrix uniforms
     mat4.perspective(45, gl.viewportWidth / gl.viewportHeight, 0.1, 100.0, gl.pMatrix);
     mat4.identity(gl.mvMatrix);
@@ -332,6 +333,21 @@ function drawScene(gl) {
     ctx = WebGLDebugUtils.makeDebugContext(gl.bindTexture(gl.TEXTURE_2D, gl.textures[0]));
 
     /*---------------------------------------------------------------*/
+    ctx = WebGLDebugUtils.makeDebugContext(gl.useProgram(gl.shaderProgram2));
+    
+    ctx = WebGLDebugUtils.makeDebugContext(gl.uniformMatrix4fv(gl.shaderProgram2.pMatrixUniform, false, gl.pMatrix));
+    ctx = WebGLDebugUtils.makeDebugContext(gl.uniformMatrix4fv(gl.shaderProgram2.mvMatrixUniform, false, gl.mvMatrix));
+
+    // Set image dimensions uniform
+    ctx = WebGLDebugUtils.makeDebugContext(gl.uniform2fv(gl.shaderProgram2.imageDimensionsUniform, gl.imageDimensions));
+    //ctx = WebGLDebugUtils.makeDebugContext(gl.bindTexture(gl.TEXTURE_2D, gl.textureId));
+    //ctx = WebGLDebugUtils.makeDebugContext(gl.activeTexture(gl.TEXTURE0));
+    var sampler2D_loc = gl.getUniformLocation(gl.shaderProgram2, "texture_diffuse");
+
+    ctx = WebGLDebugUtils.makeDebugContext(gl.uniform1i(sampler2D_loc, 0));
+
+    // Bind vertex data and set vertex attributes (as from a VAO)
+    //ctx = WebGLDebugUtils.makeDebugContext(gl.bindBuffer(gl.ARRAY_BUFFER, gl.vboId));
     if (gl.rendercount == 2 || gl.rendercount == 3) {
         a = alphax2;
         b = alphay2;
@@ -343,16 +359,16 @@ function drawScene(gl) {
         c = 0;
         d = 0;
     }
-    ctx = WebGLDebugUtils.makeDebugContext(gl.uniform1fv(gl.shaderProgram.alphax, new Float32Array([a])));
-    ctx = WebGLDebugUtils.makeDebugContext(gl.uniform1fv(gl.shaderProgram.alphay, new Float32Array([b])));
-    ctx = WebGLDebugUtils.makeDebugContext(gl.uniform1fv(gl.shaderProgram.k2x, new Float32Array([c])));
-    ctx = WebGLDebugUtils.makeDebugContext(gl.uniform1fv(gl.shaderProgram.k2y, new Float32Array([d])));
+    ctx = WebGLDebugUtils.makeDebugContext(gl.uniform1fv(gl.shaderProgram2.alphax, new Float32Array([a])));
+    ctx = WebGLDebugUtils.makeDebugContext(gl.uniform1fv(gl.shaderProgram2.alphay, new Float32Array([b])));
+    ctx = WebGLDebugUtils.makeDebugContext(gl.uniform1fv(gl.shaderProgram2.k2x, new Float32Array([c])));
+    ctx = WebGLDebugUtils.makeDebugContext(gl.uniform1fv(gl.shaderProgram2.k2y, new Float32Array([d])));
     ctx = WebGLDebugUtils.makeDebugContext(gl.bindFramebuffer(gl.FRAMEBUFFER, gl.FBOs[1]));
-    ctx = WebGLDebugUtils.makeDebugContext(gl.vertexAttribPointer(gl.shaderProgram.inPosition, 4, gl.FLOAT, false, 10 * 4, 0));
-    ctx = WebGLDebugUtils.makeDebugContext(gl.vertexAttribPointer(gl.shaderProgram.inColor, 4, gl.FLOAT, false, 10 * 4, 4 * 4));
+    ctx = WebGLDebugUtils.makeDebugContext(gl.vertexAttribPointer(gl.shaderProgram2.inPosition, 4, gl.FLOAT, false, 10 * 4, 0));
+    ctx = WebGLDebugUtils.makeDebugContext(gl.vertexAttribPointer(gl.shaderProgram2.inColor, 4, gl.FLOAT, false, 10 * 4, 4 * 4));
 
     ctx = WebGLDebugUtils.makeDebugContext(gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, gl.vboiId));
-    ctx = WebGLDebugUtils.makeDebugContext(gl.vertexAttribPointer(gl.shaderProgram.inTextureCoord, 2, gl.FLOAT, false, 10 * 4, 8 * 4));
+    ctx = WebGLDebugUtils.makeDebugContext(gl.vertexAttribPointer(gl.shaderProgram2.inTextureCoord, 2, gl.FLOAT, false, 10 * 4, 8 * 4));
 
     ctx = WebGLDebugUtils.makeDebugContext(gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT));
     ctx = WebGLDebugUtils.makeDebugContext(gl.drawElements(gl.TRIANGLES, gl.indices_count, gl.UNSIGNED_SHORT, 0));
