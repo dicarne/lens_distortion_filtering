@@ -125,6 +125,7 @@ function initShaders(igl) {
 
     var fragmentShader = getShader(igl, "shader-fs");
     var vertexShader = getShader(igl, "shader-vs");
+    var fragmentShader2 = getShader(igl, "shader2-fs");
 
     ctx = WebGLDebugUtils.makeDebugContext(igl.shaderProgram = igl.createProgram());
     ctx = WebGLDebugUtils.makeDebugContext(igl.attachShader(igl.shaderProgram, vertexShader));
@@ -140,6 +141,40 @@ function initShaders(igl) {
     // Enable vertex attribute arrays for position, color, uvs
 
     ctx = WebGLDebugUtils.makeDebugContext(igl.shaderProgram.inPosition = igl.getAttribLocation(igl.shaderProgram, "in_Position"));
+    ctx = WebGLDebugUtils.makeDebugContext(igl.enableVertexAttribArray(igl.shaderProgram.inPosition));
+
+    igl.shaderProgram.inColor = igl.getAttribLocation(igl.shaderProgram, "in_Color");
+    ctx = WebGLDebugUtils.makeDebugContext(igl.enableVertexAttribArray(igl.shaderProgram.inColor));
+
+    igl.shaderProgram.inTextureCoord = igl.getAttribLocation(igl.shaderProgram, "in_TextureCoord");
+    ctx = WebGLDebugUtils.makeDebugContext(igl.enableVertexAttribArray(igl.shaderProgram.inTextureCoord));
+
+    // Bind uniforms for matrices
+    ctx = WebGLDebugUtils.makeDebugContext(igl.shaderProgram.pMatrixUniform = igl.getUniformLocation(igl.shaderProgram, "uPMatrix"));
+    ctx = WebGLDebugUtils.makeDebugContext(igl.shaderProgram.mvMatrixUniform = igl.getUniformLocation(igl.shaderProgram, "uMVMatrix"));
+
+    // Bind uniform for image dimensions and alpha factors
+    ctx = WebGLDebugUtils.makeDebugContext(igl.shaderProgram.imageDimensionsUniform = igl.getUniformLocation(igl.shaderProgram, "image_dimensions"));
+    ctx = WebGLDebugUtils.makeDebugContext(igl.shaderProgram.alphax = igl.getUniformLocation(igl.shaderProgram, "alphax"));
+    ctx = WebGLDebugUtils.makeDebugContext(igl.shaderProgram.alphay = igl.getUniformLocation(igl.shaderProgram, "alphay"));
+    ctx = WebGLDebugUtils.makeDebugContext(igl.shaderProgram.k2x = igl.getUniformLocation(igl.shaderProgram, "k2x"));
+    ctx = WebGLDebugUtils.makeDebugContext(igl.shaderProgram.k2y = igl.getUniformLocation(igl.shaderProgram, "k2y"));
+    // -------------------------
+
+    ctx = WebGLDebugUtils.makeDebugContext(igl.shaderProgram2 = igl.createProgram());
+    ctx = WebGLDebugUtils.makeDebugContext(igl.attachShader(igl.shaderProgram2, vertexShader));
+    ctx = WebGLDebugUtils.makeDebugContext(igl.attachShader(igl.shaderProgram2, fragmentShader2));
+    ctx = WebGLDebugUtils.makeDebugContext(igl.linkProgram(igl.shaderProgram2));
+
+    if (!igl.getProgramParameter(igl.shaderProgram2, igl.LINK_STATUS)) {
+        alert("Could not initialize shaders");
+    }
+
+    ctx = WebGLDebugUtils.makeDebugContext(igl.useProgram(igl.shaderProgram2));
+
+    // Enable vertex attribute arrays for position, color, uvs
+
+    ctx = WebGLDebugUtils.makeDebugContext(igl.shaderProgram2.inPosition = igl.getAttribLocation(igl.shaderProgram2, "in_Position"));
     ctx = WebGLDebugUtils.makeDebugContext(igl.enableVertexAttribArray(igl.shaderProgram.inPosition));
 
     igl.shaderProgram.inColor = igl.getAttribLocation(igl.shaderProgram, "in_Color");
