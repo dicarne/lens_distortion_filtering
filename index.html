@@ -57,6 +57,52 @@
     }
   </script>
 
+  <script id="shader2-fs" type="x-shader/x-fragment">
+    precision mediump float;
+    
+    uniform sampler2D texture_diffuse;
+    uniform vec2 image_dimensions;
+    uniform float alphax;
+    uniform float alphay;
+    uniform float k2x;
+    uniform float k2y;
+    
+    varying vec4 pass_Color;
+    varying vec2 pass_TextureCoord;
+
+    void main(void) {
+    
+      // Normalize the u,v coordinates in the range [-1;+1]
+      float x = (2.0 * pass_TextureCoord.x - 1.0) / 1.0;
+      float y = (2.0 * pass_TextureCoord.y - 1.0) / 1.0;
+      
+      // Calculate l2 norm
+      float r = x*x + y*y;
+      
+      // Calculate the deflated or inflated new coordinate (reverse transform)
+      //float x3 = x / (1.0 - alphax * r);
+		  //float y3 = y / (1.0 - alphay * r); 
+			//float x2 = x / (1.0 - alphax * (x3 * x3 + y3 * y3));
+			//float y2 = y / (1.0 - alphay * (x3 * x3 + y3 * y3));	
+      
+      float x2 = x / (1.0 - alphax * r - k2x * r * r);
+      float y2 = y / (1.0 - alphay * r - k2y * r * r);
+
+      // Forward transform
+      // float x2 = x * (1.0 - alphax * r);
+      // float y2 = y * (1.0 - alphay * r);
+
+      // De-normalize to the original range
+      float i2 = (x2 + 1.0) * 1.0 / 2.0;
+      float j2 = (y2 + 1.0) * 1.0 / 2.0;
+    
+      if(i2 >= 0.0 && i2 <= 1.0 && j2 >= 0.0 && j2 <= 1.0)
+        gl_FragColor = texture2D(texture_diffuse, vec2(i2, j2));
+      else
+        gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
+    }
+  </script>
+
   <script id="shader-vs" type="x-shader/x-vertex">
     attribute vec4 in_Position;
     attribute vec4 in_Color;
