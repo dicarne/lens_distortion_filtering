@@ -2,7 +2,8 @@ var gl; // gl instance
 // add by dicarne
 var gl2;
 var glt;
-var gl3
+var gl3;
+var glcom;
 function webGLStart() {
     reset();
     var canvas = document.getElementById("filter-canvas");
@@ -42,8 +43,20 @@ function webGLStart() {
         gl3.viewportHeight = canvas4.height;
         gl3.rendercount = 4;
     } catch (e) { }
-    if (!glt) {
+    if (!gl3) {
         alert("Could not initialize WebGL");
+    }
+    var canvas5 = document.getElementById("compare-canvas");
+    try {
+        glcom = canvas5.getContext("experimental-webgl");
+
+        //glcom = canvas5.getContext("2d");
+        glcom.viewportWidth = canvas5.width;
+        glcom.viewportHeight = canvas5.height;
+        glcom.rendercount = 5;
+    } catch (e) { }
+    if (!glcom) {
+        alert("Could not initialize");
     }
     gl.mvMatrix = mat4.create(); // Warning: does not default to identity
     gl.pMatrix = mat4.create();  // Warning: does not default to identity    
@@ -53,10 +66,15 @@ function webGLStart() {
     glt.pMatrix = mat4.create();
     gl3.mvMatrix = mat4.create();
     gl3.pMatrix = mat4.create();
+    glcom.mvMatrix = mat4.create();
+    glcom.pMatrix = mat4.create();
     webGLStart_inside(gl);
     webGLStart_inside(gl2);
     webGLStart_inside(glt);
     webGLStart_inside(gl3);
+    setupQuad(glcom);
+    initCompareShader(glcom);
+    initCompareTexture(glcom);
     paintLoop();
 }
 
@@ -121,11 +139,38 @@ function getShader(gl, id) {
     return shader;
 }
 
+function initCompareShader(igl) {
+    var vertexShader = getShader(igl, "simple-vs");
+    var frag_compare_shader = getShader(igl, "simple-fs");
+    ctx = WebGLDebugUtils.makeDebugContext(igl.shaderProgram = igl.createProgram());
+    ctx = WebGLDebugUtils.makeDebugContext(igl.attachShader(igl.shaderProgram, vertexShader));
+    ctx = WebGLDebugUtils.makeDebugContext(igl.attachShader(igl.shaderProgram, frag_compare_shader));
+    ctx = WebGLDebugUtils.makeDebugContext(igl.linkProgram(igl.shaderProgram));
+    if (!igl.getProgramParameter(igl.shaderProgram, igl.LINK_STATUS)) {
+        alert("Could not initialize shaders");
+    }
+
+    ctx = WebGLDebugUtils.makeDebugContext(igl.useProgram(igl.shaderProgram));
+
+    // Enable vertex attribute arrays for position, color, uvs
+
+    ctx = WebGLDebugUtils.makeDebugContext(igl.shaderProgram.inPosition = igl.getAttribLocation(igl.shaderProgram, "in_Position"));
+    ctx = WebGLDebugUtils.makeDebugContext(igl.enableVertexAttribArray(igl.shaderProgram.inPosition));
+
+    igl.shaderProgram.inColor = igl.getAttribLocation(igl.shaderProgram, "in_Color");
+    ctx = WebGLDebugUtils.makeDebugContext(igl.enableVertexAttribArray(igl.shaderProgram.inColor));
+
+    igl.shaderProgram.inTextureCoord = igl.getAttribLocation(igl.shaderProgram, "in_TextureCoord");
+    ctx = WebGLDebugUtils.makeDebugContext(igl.enableVertexAttribArray(igl.shaderProgram.inTextureCoord));
+
+}
+
 function initShaders(igl) {
 
     var fragmentShader = getShader(igl, "shader-fs");
     var vertexShader = getShader(igl, "shader-vs");
     var fragmentShader2 = getShader(igl, "shader2-fs");
+    //var frag_compare_shader = getShader(igl, "compare-fs");
 
     ctx = WebGLDebugUtils.makeDebugContext(igl.shaderProgram = igl.createProgram());
     ctx = WebGLDebugUtils.makeDebugContext(igl.attachShader(igl.shaderProgram, vertexShader));
@@ -217,7 +262,27 @@ function setupQuad(igl) {
         1.0, 1.0, 1.0, 1.0,     // RGBA
         1.0, 1.0                // UV coords
     ];
-    ctx = WebGLDebugUtils.makeDebugContext(igl.bufferData(igl.ARRAY_BUFFER, new Float32Array(vbo_data), igl.STATIC_DRAW));
+    var full_vbo_data = [
+        -1.0, 1.0, 0.0, 1.0,    // Vertex (xyzw)
+        1.0, 0.0, 0.0, 1.0,     // RGBA
+        0.0, 1.0,               // UV coords
+
+        -1.0, -1.0, 0.0, 1.0,   // Vertex (xyzw)
+        0.0, 1.0, 0.0, 1.0,     // RGBA
+        0.0, 0.0,               // UV coords
+
+        1.0, -1.0, 0.0, 1.0,    // Vertex (xyzw)
+        0.0, 0.0, 1.0, 1.0,     // RGBA
+        1.0, 0.0,               // UV coords
+
+        1.0, 1.0, 0.0, 1.0,     // Vertex (xyzw)
+        1.0, 1.0, 1.0, 1.0,     // RGBA
+        1.0, 1.0                // UV coords
+    ];
+    if (igl.rendercount == 5)
+        ctx = WebGLDebugUtils.makeDebugContext(igl.bufferData(igl.ARRAY_BUFFER, new Float32Array(full_vbo_data), igl.STATIC_DRAW));
+    else
+        ctx = WebGLDebugUtils.makeDebugContext(igl.bufferData(igl.ARRAY_BUFFER, new Float32Array(vbo_data), igl.STATIC_DRAW));
     // Set up VBO with indices data
     ctx = WebGLDebugUtils.makeDebugContext(igl.vboiId = igl.createBuffer());
     ctx = WebGLDebugUtils.makeDebugContext(igl.bindBuffer(igl.ELEMENT_ARRAY_BUFFER, igl.vboiId));
@@ -235,7 +300,7 @@ function initTexture(igl) {
     igl.FBOs = [];
     ctx = WebGLDebugUtils.makeDebugContext(igl.textureId = igl.createTexture());
     igl.textureId.image = new Image();
-    igl.textureId.image.src = "assets/dis_small.png";
+    igl.textureId.image.src = "assets/testchildsmall.png";
     igl.textureId.image.onload = function () {
         //igl.textureId.image.width = 256;
         //igl.textureId.image.height = 256;
@@ -334,7 +399,7 @@ function drawScene(gl) {
 
     /*---------------------------------------------------------------*/
     ctx = WebGLDebugUtils.makeDebugContext(gl.useProgram(gl.shaderProgram2));
-    
+
     ctx = WebGLDebugUtils.makeDebugContext(gl.uniformMatrix4fv(gl.shaderProgram2.pMatrixUniform, false, gl.pMatrix));
     ctx = WebGLDebugUtils.makeDebugContext(gl.uniformMatrix4fv(gl.shaderProgram2.mvMatrixUniform, false, gl.mvMatrix));
 
@@ -373,17 +438,72 @@ function drawScene(gl) {
     ctx = WebGLDebugUtils.makeDebugContext(gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT));
     ctx = WebGLDebugUtils.makeDebugContext(gl.drawElements(gl.TRIANGLES, gl.indices_count, gl.UNSIGNED_SHORT, 0));
     ctx = WebGLDebugUtils.makeDebugContext(gl.bindTexture(gl.TEXTURE_2D, gl.textures[1]));
-    gl.pixels = new Uint8Array(gl.textureId.image.width * gl.textureId.image.height * 4);
-    gl.readPixels(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight, gl.RGBA, gl.UNSIGNED_BYTE, gl.pixels);
+
 
     ctx = WebGLDebugUtils.makeDebugContext(gl.bindFramebuffer(gl.FRAMEBUFFER, null));
 
     ctx = WebGLDebugUtils.makeDebugContext(gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT));
     ctx = WebGLDebugUtils.makeDebugContext(gl.drawElements(gl.TRIANGLES, gl.indices_count, gl.UNSIGNED_SHORT, 0));
-
+    gl.pixels = new Uint8Array(gl.textureId.image.width * gl.textureId.image.height * 4);
+    gl.readPixels(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight, gl.RGBA, gl.UNSIGNED_BYTE, gl.pixels);
     ctx = WebGLDebugUtils.makeDebugContext(gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null));
     ctx = WebGLDebugUtils.makeDebugContext(gl.bindBuffer(gl.ARRAY_BUFFER, null));
     ctx = WebGLDebugUtils.makeDebugContext(gl.bindTexture(gl.TEXTURE_2D, null));
+}
+
+function drawJudge(gl) {
+
+    ctx = WebGLDebugUtils.makeDebugContext(gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight));
+
+    if (textureIsSafeToRender == false) {
+        console.log("Still can't render stuff if the texture hasn't been loaded yet");
+        return;
+    }
+    ctx = WebGLDebugUtils.makeDebugContext(gl.bindBuffer(gl.ARRAY_BUFFER, gl.vboId));
+    ctx = WebGLDebugUtils.makeDebugContext(gl.useProgram(gl.shaderProgram));
+
+
+    ctx = WebGLDebugUtils.makeDebugContext(gl.vertexAttribPointer(gl.shaderProgram.inPosition, 4, gl.FLOAT, false, 10 * 4, 0));
+    ctx = WebGLDebugUtils.makeDebugContext(gl.vertexAttribPointer(gl.shaderProgram.inColor, 4, gl.FLOAT, false, 10 * 4, 4 * 4));
+    ctx = WebGLDebugUtils.makeDebugContext(gl.vertexAttribPointer(gl.shaderProgram.inTextureCoord, 2, gl.FLOAT, false, 10 * 4, 8 * 4));
+
+    ctx = WebGLDebugUtils.makeDebugContext(gl.activeTexture(gl.TEXTURE0));
+    ctx = WebGLDebugUtils.makeDebugContext(gl.bindTexture(gl.TEXTURE_2D, gl.compareTexture));
+
+    ctx = WebGLDebugUtils.makeDebugContext(gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, gl.vboiId));
+    // Set image dimensions uniform
+
+    //var sampler2D_loc = gl.getUniformLocation(gl.shaderProgram, "texture");
+
+    //ctx = WebGLDebugUtils.makeDebugContext(gl.uniform1i(sampler2D_loc, 0));
+    ctx = WebGLDebugUtils.makeDebugContext(gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT));
+    ctx = WebGLDebugUtils.makeDebugContext(gl.drawElements(gl.TRIANGLES, gl.indices_count, gl.UNSIGNED_SHORT, 0));
+
+    // Bind vertex data and set vertex attributes (as from a VAO)
+    //
+    ctx = WebGLDebugUtils.makeDebugContext(gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null));
+    ctx = WebGLDebugUtils.makeDebugContext(gl.bindBuffer(gl.ARRAY_BUFFER, null));
+    ctx = WebGLDebugUtils.makeDebugContext(gl.bindTexture(gl.TEXTURE_2D, null));
+}
+function initCompareTexture(igl) {
+    var texture;
+    texture = igl.createTexture();
+    igl.compareTexture = texture;
+}
+
+function createTexture(igl, array) {
+
+    igl.activeTexture(igl.TEXTURE0);
+    igl.bindTexture(igl.TEXTURE_2D, igl.compareTexture);
+
+    ctx = WebGLDebugUtils.makeDebugContext(igl.texImage2D(
+        igl.TEXTURE_2D, 0, igl.RGBA, 256, 256, 0, igl.RGBA,
+        igl.UNSIGNED_BYTE, new Uint8Array(array)
+    ));
+    ctx = WebGLDebugUtils.makeDebugContext(igl.texParameteri(igl.TEXTURE_2D, igl.TEXTURE_WRAP_S, igl.CLAMP_TO_EDGE));
+    ctx = WebGLDebugUtils.makeDebugContext(igl.texParameteri(igl.TEXTURE_2D, igl.TEXTURE_WRAP_T, igl.CLAMP_TO_EDGE));
+    ctx = WebGLDebugUtils.makeDebugContext(igl.texParameteri(igl.TEXTURE_2D, igl.TEXTURE_MIN_FILTER, igl.LINEAR));
+    ctx = WebGLDebugUtils.makeDebugContext(igl.texParameteri(igl.TEXTURE_2D, igl.TEXTURE_MAG_FILTER, igl.LINEAR));
 }
 
 function paintLoop() {
@@ -392,41 +512,47 @@ function paintLoop() {
     drawScene(gl2);
     drawScene(glt);
     drawScene(gl3);
-    //Judeg();
+    Judge();
 }
-
+var compare = {};
+compare.width = 256;
+compare.height = 256;
+compare.data = new Array(256 * 256 * 4);
+compare.pixelsdata= new Array(256*256);
 function Judge() {
-    if (gl2.pixels.length <= 1) return;
-    var s1 = [];
-    var s2 = [];
-    var checkarea = 100;
+    if (gl3.pixels == undefined || gl2.pixels == undefined || gl3.pixels == null || gl2.pixels == null) return;
+    //compare = glcom.createImageData(256, 256);
 
-    for (var i = 0; i < 512; i++) {
-        if (i >= checkarea && i < 512 - checkarea) {
-            var centerheigh = Math.abs(256 - i);
-            var leftside = Math.sqrt(checkarea * checkarea - centerheigh * centerheigh);
-            var t = gl2.pixels.slice(512 * 4 * i + leftside * 4, 512 * 4 * i + (512 - leftside) * 4);
-            for (var j = 0; j < t.length - 1; j += 4) {
-                s1.push((t[j] * 299 + t[j + 1] * 587 + t[j + 2] * 114 + 500));
-            }
-            var t2 = glt.pixels.slice(512 * 4 * i + leftside * 4, 512 * 4 * i + (512 - leftside) * 4);
-            for (var j = 0; j < t2.length - 1; j += 4) {
-                s2.push((t2[j] * 299 + t2[j + 1] * 587 + t2[j + 2] * 114 + 500));
-            }
+    //for (var i = 0; i < 256 * 4 * 256; i += 4) {
+    // var temp = [];
+    //compare.data[i * 4] = Math.abs(gl2.pixels[i * 4] - gl3.pixels[i * 4]);
+    //compare.data[i * 4 + 1] = Math.abs(gl2.pixels[i * 4 + 1] - gl3.pixels[i * 4 + 1]);
+    //compare.data[i * 4 + 2] = Math.abs(gl2.pixels[i * 4 + 2] - gl3.pixels[i * 4 + 2]);
+    //compare.data[i * 4 + 3] = 255;
+    //compare.push(gl2.pixels[i*4+3]);
+    //compare.push(temp);
+
+    //}
+    var maxpixcels = compare.width * compare.height * 4;
+    for (var x = 0; x < compare.width; x++) {
+        for (var y = 0; y < compare.height; y++) {
+            
+            var i = (y * compare.width + x) * 4;  //calculate index
+            compare.data[i] = Math.abs(gl2.pixels[i] - gl3.pixels[i]);
+            compare.data[i + 1] = Math.abs(gl2.pixels[i + 1] - gl3.pixels[i + 1]);
+            compare.data[i + 2] = Math.abs(gl2.pixels[i + 2] - gl3.pixels[i + 2]);
+            compare.data[i + 3] = 255;
+
         }
-
     }
-    console.log(s1);
-
-    var res = s1.map(function (a, b, c) {
-        return Math.abs(a - s2[b]);
-    });
-    var sumnum = res.reduce(function (total, num) {
-        return total + num;
-    });
-    document.getElementById("resultsum").innerHTML = sumnum;
+    createTexture(glcom, compare.data);
+    drawJudge(glcom);
+    //drawDiff(compare);
 }
 
+function drawDiff(array) {
+    glcom.putImageData(array, 0, 0);
+}
 
 // ~-~-~-~-~-~-~-~-~- UI related handling routines ~-~-~-~-~-~-~-~-~-
 
@@ -477,3 +603,9 @@ function reset() {
     document.getElementById("k2a_slider2").value = k2xa;
 }
 // ~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-
+
+function debug() {
+    console.log("----debug----");
+    //console.log(compare);
+    Judge();
+}
