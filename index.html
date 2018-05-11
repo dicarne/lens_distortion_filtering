@@ -10,6 +10,18 @@
   <script type="text/javascript" src="utils/webgl-utils.js"></script>
   <script type="text/javascript" src="utils/webgl-debug.js"></script>
   <link rel="stylesheet" type="text/css" href="css/modernpanel.css">
+  <script id="simple-fs" type="x-shader/x-fragment">
+    precision mediump float;
+    varying vec4 pass_Color;
+    varying vec2 pass_TextureCoord;
+    uniform sampler2D texture;
+    
+    void main()
+    {
+      //gl_FragColor=vec4(1.0,0.0,0.0,1.0);
+      gl_FragColor = texture2D(texture, vec2(pass_TextureCoord.x, pass_TextureCoord.y));
+    }
+  </script>
 
   <script id="shader-fs" type="x-shader/x-fragment">
     precision mediump float;
@@ -105,6 +117,22 @@
         gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
     }
   </script>
+  <script id="simple-vs" type="x-shader/x-vertex">
+    attribute vec4 in_Position;
+    attribute vec4 in_Color;
+    attribute vec2 in_TextureCoord;    
+    
+    
+    varying vec4 pass_Color;
+    varying vec2 pass_TextureCoord;
+    
+    void main(void) {
+      gl_Position = in_Position;
+      
+      pass_Color = in_Color;
+      pass_TextureCoord = in_TextureCoord;
+    }
+  </script>
 
   <script id="shader-vs" type="x-shader/x-vertex">
     attribute vec4 in_Position;
@@ -137,7 +165,7 @@
           <div class="col-xs-12 col-sm-6">
             <div class="slider_panel">
               <div class="canvastag">
-                用于畸变的畸变参数
+                用于反畸变的畸变参数
               </div>
               <div class="slider_box">
                 <div class="k-tag">k1</div>
@@ -158,7 +186,7 @@
           <div class="col-xs-12 col-sm-6">
             <div class="slider_panel">
               <div class="canvastag">
-                用于反畸变的畸变参数
+                用于透镜的畸变参数
               </div>
               <div class="slider_box">
                 <div class="k-tag">k1</div>
@@ -187,32 +215,46 @@
     <!--        -->
     <div class="container">
       <div class="row">
+
         <div class="pull-left col-xs-12 col-sm-6">
           <div class="glcanvas">
-            <div class="canvastag">原图经过透镜畸变后的图像</div>
-            <canvas id="filter-canvas" style="border: none;" width="256" height="256"></canvas>
+            <div class="canvastag">对比图</div>
+            <canvas id="compare-canvas" style="border: none;" width="256" height="256"></canvas>
           </div>
         </div>
+
         <div class="pull-left col-xs-12 col-sm-6">
           <div class="glcanvas">
-            <div class="canvastag">图像经过透镜畸变后复原的结果</div>
+            <div class="canvastag">反畸变图像经过透镜的结果</div>
             <canvas id="filter2-canvas" style="border: none;" width="256" height="256"></canvas>
           </div>
         </div>
 
-
-        <div class="pull-left col-xs-12 col-sm-6">
-          <div class="glcanvas">
-            <div class="canvastag">原图反畸变后</div>
-            <canvas id="filter0-canvas" style="border: none;" width="256" height="256"></canvas>
-          </div>
-        </div>
         <div class="pull-left col-xs-12 col-sm-6">
           <div class="glcanvas">
             <div class="canvastag">原图</div>
             <canvas id="filter3-canvas" style="border: none;" width="256" height="256"></canvas>
           </div>
         </div>
+
+        <div class="pull-left col-xs-12 col-sm-6">
+          <div class="glcanvas">
+            <div class="canvastag">原图经过反畸变算法后的图像</div>
+            <canvas id="filter-canvas" style="border: none;" width="256" height="256"></canvas>
+          </div>
+        </div>
+
+        <div class="pull-left col-xs-12 col-sm-6">
+          <div class="glcanvas">
+            <div class="canvastag">只经过透镜</div>
+            <canvas id="filter0-canvas" style="border: none;" width="256" height="256"></canvas>
+          </div>
+        </div>
+
+
+
+
+
       </div>
     </div>
   </div>
