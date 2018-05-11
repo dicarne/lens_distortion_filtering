@@ -5,6 +5,7 @@ var glt;
 var gl3;
 var glcom;
 function webGLStart() {
+    judgemode.work = red;
     reset();
     var canvas = document.getElementById("filter-canvas");
     try {
@@ -518,7 +519,7 @@ var compare = {};
 compare.width = 256;
 compare.height = 256;
 compare.data = new Array(256 * 256 * 4);
-compare.pixelsdata= new Array(256*256);
+compare.pixelsdata = new Array(256 * 256);
 function Judge() {
     if (gl3.pixels == undefined || gl2.pixels == undefined || gl3.pixels == null || gl2.pixels == null) return;
     //compare = glcom.createImageData(256, 256);
@@ -533,11 +534,41 @@ function Judge() {
     //compare.push(temp);
 
     //}
+    judgemode.work();
+    createTexture(glcom, compare.data);
+    drawJudge(glcom);
+    //drawDiff(compare);
+}
+
+function red() {
     var maxpixcels = compare.width * compare.height * 4;
     for (var x = 0; x < compare.width; x++) {
         for (var y = 0; y < compare.height; y++) {
-            
+
             var i = (y * compare.width + x) * 4;  //calculate index
+            var diff = Math.abs(gl2.pixels[i] - gl3.pixels[i]) + Math.abs(gl2.pixels[i + 1] - gl3.pixels[i + 1]) + Math.abs(gl2.pixels[i + 2] - gl3.pixels[i + 2]);
+            var diff2 = gl3.pixels[i] + diff;
+            if (diff2 > 255) diff2 = 255;
+            compare.data[i] = diff2;
+            compare.data[i + 1] = gl3.pixels[i + 1];
+            compare.data[i + 2] = gl3.pixels[i + 2];
+            /*
+            compare.data[i] = Math.abs(gl2.pixels[i] - gl3.pixels[i]);
+            compare.data[i + 1] = Math.abs(gl2.pixels[i + 1] - gl3.pixels[i + 1]);
+            compare.data[i + 2] = Math.abs(gl2.pixels[i + 2] - gl3.pixels[i + 2]);*/
+            compare.data[i + 3] = 255;
+
+        }
+    }
+}
+
+function cut() {
+    var maxpixcels = compare.width * compare.height * 4;
+    for (var x = 0; x < compare.width; x++) {
+        for (var y = 0; y < compare.height; y++) {
+
+            var i = (y * compare.width + x) * 4;  //calculate index
+            
             compare.data[i] = Math.abs(gl2.pixels[i] - gl3.pixels[i]);
             compare.data[i + 1] = Math.abs(gl2.pixels[i + 1] - gl3.pixels[i + 1]);
             compare.data[i + 2] = Math.abs(gl2.pixels[i + 2] - gl3.pixels[i + 2]);
@@ -545,9 +576,6 @@ function Judge() {
 
         }
     }
-    createTexture(glcom, compare.data);
-    drawJudge(glcom);
-    //drawDiff(compare);
 }
 
 function drawDiff(array) {
@@ -608,4 +636,19 @@ function debug() {
     console.log("----debug----");
     //console.log(compare);
     Judge();
+}
+var judgemode = {
+
+};
+judgemode.mode = 'red'
+function changemode(str) {
+    judgemode.mode = str;
+    switch (str) {
+        case 'red':
+            judgemode.work = red;
+            break;
+        case 'cut':
+            judgemode.work = cut;
+            break;
+    }
 }
