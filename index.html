@@ -234,10 +234,16 @@
         </div>
         <div>
           <button id="resetbutton" type="button" onclick="reset()">重置</button>
+          <button id="calculateButton" type="button" onclick="study()">计算</button>
           <button class="changeModeButton" type="button" onclick="changemode('cut')">相减</button>
           <button class="changeModeButton" type="button" onclick="changemode('red')">标红</button>
-          <button class="changeModeButton" type="button" onclick="debug()">debug</button>          <button class="changeModeButton" type="button" onclick="study()">计算</button>
-
+        </div>
+        <div class="scale_box">
+          <div class="k-tag">scale</div>
+          <input id="scale_slider" type="range" style="vertical-align:middle;" min="1" max="100" value="50" onchange="adjustAlphaFactor('scale', this.value)"
+            oninput="adjustAlphaFactor('scale', this.value)" />
+          <input type="text" class="valueshowr" id="scale_value" style="vertical-align:middle; width: 50px; text-align: center;" value="50"
+            readonly>
         </div>
       </div>
     </div>
