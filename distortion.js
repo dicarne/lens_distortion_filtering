@@ -4,6 +4,10 @@ var gl2;
 var glt;
 var gl3;
 var glcom;
+// control realtime-show
+var showing = true;
+
+
 function webGLStart() {
     judgemode.work = red;
     reset();
@@ -509,11 +513,20 @@ function createTexture(igl, array) {
 
 function paintLoop() {
     requestAnimFrame(paintLoop);
-    drawScene(gl);
-    drawScene(gl2);
-    drawScene(glt);
-    drawScene(gl3);
-    Judge();
+    if (showing) {
+        drawScene(gl);
+        drawScene(gl2);
+        drawScene(glt);
+        drawScene(gl3);
+        Judge();
+    } else {
+        train();
+        if (trainCount >= 100) {
+            console.log('study end');
+            showing = true;
+            isFirstTime = true;
+        }
+    }
 }
 var compare = {};
 compare.width = 256;
@@ -522,25 +535,28 @@ compare.data = new Array(256 * 256 * 4);
 compare.pixelsdata = new Array(256 * 256);
 function Judge() {
     if (gl3.pixels == undefined || gl2.pixels == undefined || gl3.pixels == null || gl2.pixels == null) return;
-    //compare = glcom.createImageData(256, 256);
 
-    //for (var i = 0; i < 256 * 4 * 256; i += 4) {
-    // var temp = [];
-    //compare.data[i * 4] = Math.abs(gl2.pixels[i * 4] - gl3.pixels[i * 4]);
-    //compare.data[i * 4 + 1] = Math.abs(gl2.pixels[i * 4 + 1] - gl3.pixels[i * 4 + 1]);
-    //compare.data[i * 4 + 2] = Math.abs(gl2.pixels[i * 4 + 2] - gl3.pixels[i * 4 + 2]);
-    //compare.data[i * 4 + 3] = 255;
-    //compare.push(gl2.pixels[i*4+3]);
-    //compare.push(temp);
-
-    //}
     judgemode.work();
     createTexture(glcom, compare.data);
     drawJudge(glcom);
     //drawDiff(compare);
 }
+function red_predict() {
+    var sum = 0;
+    var maxpixcels = compare.width * compare.height * 4;
+    for (var x = 0; x < compare.width; x++) {
+        for (var y = 0; y < compare.height; y++) {
 
+            var i = (y * compare.width + x) * 4;  //calculate index
+            var diff = Math.abs(gl2.pixels[i] - gl3.pixels[i]) + Math.abs(gl2.pixels[i + 1] - gl3.pixels[i + 1]) + Math.abs(gl2.pixels[i + 2] - gl3.pixels[i + 2]);
+            compare.data[i + 3] = 255;
+            sum += diff;
+        }
+    }
+    return sum;
+}
 function red() {
+    var sum = 0;
     var maxpixcels = compare.width * compare.height * 4;
     for (var x = 0; x < compare.width; x++) {
         for (var y = 0; y < compare.height; y++) {
@@ -557,25 +573,41 @@ function red() {
             compare.data[i + 1] = Math.abs(gl2.pixels[i + 1] - gl3.pixels[i + 1]);
             compare.data[i + 2] = Math.abs(gl2.pixels[i + 2] - gl3.pixels[i + 2]);*/
             compare.data[i + 3] = 255;
-
+            sum += diff;
         }
     }
+    return sum;
 }
-
-function cut() {
+function cut_Predict()
+{
     var maxpixcels = compare.width * compare.height * 4;
+    var sum = 0;
     for (var x = 0; x < compare.width; x++) {
         for (var y = 0; y < compare.height; y++) {
 
             var i = (y * compare.width + x) * 4;  //calculate index
-            
+            sum += Math.abs(gl2.pixels[i] - gl3.pixels[i]) + Math.abs(gl2.pixels[i + 1] - gl3.pixels[i + 1]) + Math.abs(gl2.pixels[i + 2] - gl3.pixels[i + 2]);
+        }
+    }
+    return sum;
+}
+function cut() {
+    console.log('cut method');
+    var maxpixcels = compare.width * compare.height * 4;
+    var sum = 0;
+    for (var x = 0; x < compare.width; x++) {
+        for (var y = 0; y < compare.height; y++) {
+
+            var i = (y * compare.width + x) * 4;  //calculate index
+
             compare.data[i] = Math.abs(gl2.pixels[i] - gl3.pixels[i]);
             compare.data[i + 1] = Math.abs(gl2.pixels[i + 1] - gl3.pixels[i + 1]);
             compare.data[i + 2] = Math.abs(gl2.pixels[i + 2] - gl3.pixels[i + 2]);
             compare.data[i + 3] = 255;
-
+            sum += compare.data[0] + compare.data[1] + compare.data[2];
         }
     }
+    return sum;
 }
 
 function drawDiff(array) {
@@ -592,21 +624,25 @@ function adjustAlphaFactor(direction, value) {
             alphax = (value * 0.01) * maximum_alpha;
             alphay = alphax;
             document.getElementById("k1_value").value = alphax;
+            document.getElementById("k1_slider").value = value;
         } break;
         case 'k2': {
             k2x = (value * 0.01) * maximum_alpha;
             k2y = k2x;
             document.getElementById("k2_value").value = k2x;
+            document.getElementById("k2_slider2").value = value;
         } break;
         case 'k1a': {
             alphax2 = (value * 0.01) * maximum_alpha;
             alphay2 = alphax2;
             document.getElementById("k1a_value2").value = alphax2;
+            document.getElementById("k1a_slider2").value = value;
         } break;
         case 'k2a': {
             k2xa = (value * 0.01) * maximum_alpha;
             k2ya = k2xa;
             document.getElementById("k2a_value2").value = k2xa;
+            document.getElementById("k2a_slider2").value = value;
         } break;
     }
 }
@@ -633,9 +669,8 @@ function reset() {
 // ~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-
 
 function debug() {
-    console.log("----debug----");
-    //console.log(compare);
-    Judge();
+    train();
+
 }
 var judgemode = {
 
@@ -651,4 +686,60 @@ function changemode(str) {
             judgemode.work = cut;
             break;
     }
+}
+
+var isFirstTime = true;
+var lastValue = {};
+var loss = 0;
+var trainCount = 0;
+function study() {
+    console.log('start study!');
+    showing = false;
+
+}
+
+function train() {
+    console.log('trainning');
+    if (isFirstTime) {
+        lastValue.k1 = alphax2;
+        lastValue.k2 = k2xa;
+        loss = 999999999999;
+        trainCount = 0;
+        isFirstTime = false;
+    }
+    trainCount++;
+    lastValue.k1 = alphax2;
+    //lastValue.k2 = k2xa;
+    function normal(value){
+        return (value * 0.01) * maximum_alpha
+    }
+    function denormal(value){
+        return value/0.01/maximum_alpha;
+    }
+    var ch1 = (Math.random() - 0.5) *50 + denormal(lastValue.k1);
+    var ch2 = (Math.random() - 0.5) *50 + denormal(lastValue.k2);
+    adjustAlphaFactor('k1a', ch1);
+    adjustAlphaFactor('k2a', ch2);
+    drawScene(gl2);
+    //drawScene(gl3);
+    var loss2 = red_predict();
+    console.log(loss2);
+    if (loss2 < loss) {
+        console.log('success');
+        Judge();
+        lastValue.k1 = alphax2;
+        lastValue.k2 = k2xa;
+        loss = loss2;
+        //adjustAlphaFactor('k1a', alphax2);
+        //adjustAlphaFactor('k2a', k2xa);
+    } else {
+        console.log('roll back');
+        alphax2 = lastValue.k1;
+        k2xa = lastValue.k2;
+        //adjustAlphaFactor('k1a', alphax2);
+        //adjustAlphaFactor('k2a', k2xa);
+    }
+    adjustAlphaFactor('k1a', denormal(alphax2));
+    adjustAlphaFactor('k2a', denormal(k2xa));
+
 }
