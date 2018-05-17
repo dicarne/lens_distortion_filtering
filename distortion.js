@@ -520,6 +520,9 @@ function paintLoop() {
         drawScene(gl3);
         Judge();
     } else {
+        if (trainCount >= 50) {
+            scale = 20;
+        }
         train();
         if (trainCount >= 100) {
             console.log('study end');
@@ -578,8 +581,7 @@ function red() {
     }
     return sum;
 }
-function cut_Predict()
-{
+function cut_Predict() {
     var maxpixcels = compare.width * compare.height * 4;
     var sum = 0;
     for (var x = 0; x < compare.width; x++) {
@@ -697,27 +699,27 @@ function study() {
     showing = false;
 
 }
-
+var scale = 50;
 function train() {
     console.log('trainning');
     if (isFirstTime) {
-        lastValue.k1 = alphax2;
-        lastValue.k2 = k2xa;
-        loss = 999999999999;
+        loss = red_predict();;
         trainCount = 0;
         isFirstTime = false;
+        scale = 50;
     }
     trainCount++;
     lastValue.k1 = alphax2;
-    //lastValue.k2 = k2xa;
-    function normal(value){
+    lastValue.k2 = k2xa;
+    function normal(value) {
         return (value * 0.01) * maximum_alpha
     }
-    function denormal(value){
-        return value/0.01/maximum_alpha;
+    function denormal(value) {
+        return value / 0.01 / maximum_alpha;
     }
-    var ch1 = (Math.random() - 0.5) *50 + denormal(lastValue.k1);
-    var ch2 = (Math.random() - 0.5) *50 + denormal(lastValue.k2);
+
+    var ch1 = (Math.random() - 0.5) * 50 + denormal(lastValue.k1);
+    var ch2 = (Math.random() - 0.5) * 50 + denormal(lastValue.k2);
     adjustAlphaFactor('k1a', ch1);
     adjustAlphaFactor('k2a', ch2);
     drawScene(gl2);
