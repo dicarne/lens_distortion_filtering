@@ -35,6 +35,10 @@
     uniform float alphay;
     uniform float k2x;
     uniform float k2y;
+    uniform float k3x;
+    uniform float k3y;
+    //uniform float k4x;
+    //uniform float k4y;
     
     varying vec4 pass_Color;
     varying vec2 pass_TextureCoord;
@@ -54,8 +58,8 @@
 			//float x2 = x / (1.0 - alphax * (x3 * x3 + y3 * y3));
 			//float y2 = y / (1.0 - alphay * (x3 * x3 + y3 * y3));	
       
-      float x2 = x / (1.0 - alphax * r - k2x * r * r);
-      float y2 = y / (1.0 - alphay * r - k2y * r * r);
+      float x2 = x / (1.0 - alphax * r - k2x * r * r - k3x * r * r * r * r);
+      float y2 = y / (1.0 - alphay * r - k2y * r * r - k3y * r * r * r * r);
 
       // Forward transform
       // float x2 = x * (1.0 - alphax * r);
@@ -81,6 +85,8 @@
     uniform float alphay;
     uniform float k2x;
     uniform float k2y;
+    uniform float k3x;
+    uniform float k3y;
     
     varying vec4 pass_Color;
     varying vec2 pass_TextureCoord;
@@ -103,8 +109,8 @@
       //float x2 = x / (1.0 - alphax * r - k2x * r * r);
       //float y2 = y / (1.0 - alphay * r - k2y * r * r);
 
-      float x2 = x * (1.0 + alphax * r + k2x * r * r);
-      float y2 = y * (1.0 + alphay * r + k2y * r * r);
+      float x2 = x * (1.0 + alphax * r + k2x * r * r + k3x * r * r);
+      float y2 = y * (1.0 + alphay * r + k2y * r * r + k3y * r * r);
 
       // Forward transform
       // float x2 = x * (1.0 - alphax * r);
@@ -187,6 +193,13 @@
                 <input type="text" class="valueshowr" id="k2_value" style="vertical-align:middle; width: 50px; text-align: center;" value="0.0"
                   readonly>
               </div>
+              <div class="slider_box">
+                <div class="k-tag">k3</div>
+                <input id="k3_slider" type="range" style="vertical-align:middle;" min="-100" max="100" value="0" onchange="adjustAlphaFactor('k3', this.value)"
+                  oninput="adjustAlphaFactor('k3', this.value)" />
+                <input type="text" class="valueshowr" id="k3_value" style="vertical-align:middle; width: 50px; text-align: center;" value="0.0"
+                  readonly>
+              </div>
             </div>
           </div>
           <div class="col-xs-12 col-sm-6">
@@ -206,6 +219,13 @@
                 <input id="k2a_slider2" type="range" style="vertical-align:middle;" min="-100" max="100" value="0" onchange="adjustAlphaFactor('k2a', this.value)"
                   oninput="adjustAlphaFactor('k2a', this.value)" />
                 <input type="text" class="valueshowr" id="k2a_value2" style="vertical-align:middle; width: 50px; text-align: center;" value="0.0"
+                  readonly>
+              </div>
+              <div class="slider_box">
+                <div class="k-tag">k3</div>
+                <input id="k3a_slider2" type="range" style="vertical-align:middle;" min="-100" max="100" value="0" onchange="adjustAlphaFactor('k3a', this.value)"
+                  oninput="adjustAlphaFactor('k3a', this.value)" />
+                <input type="text" class="valueshowr" id="k3a_value2" style="vertical-align:middle; width: 50px; text-align: center;" value="0.0"
                   readonly>
               </div>
             </div>
