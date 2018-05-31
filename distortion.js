@@ -206,8 +206,8 @@ function initShaders(igl) {
 
     // Bind uniform for image dimensions and alpha factors
     wdebug(igl.shaderProgram.imageDimensionsUniform = igl.getUniformLocation(igl.shaderProgram, "image_dimensions"));
-    wdebug(igl.shaderProgram.alphax = igl.getUniformLocation(igl.shaderProgram, "alphax"));
-    wdebug(igl.shaderProgram.alphay = igl.getUniformLocation(igl.shaderProgram, "alphay"));
+    wdebug(igl.shaderProgram.k1x = igl.getUniformLocation(igl.shaderProgram, "k1x"));
+    wdebug(igl.shaderProgram.k1y = igl.getUniformLocation(igl.shaderProgram, "k1y"));
     wdebug(igl.shaderProgram.k2x = igl.getUniformLocation(igl.shaderProgram, "k2x"));
     wdebug(igl.shaderProgram.k2y = igl.getUniformLocation(igl.shaderProgram, "k2y"));
     wdebug(igl.shaderProgram.k3x = igl.getUniformLocation(igl.shaderProgram, "k3x"));
@@ -242,8 +242,8 @@ function initShaders(igl) {
 
     // Bind uniform for image dimensions and alpha factors
     wdebug(igl.shaderProgram2.imageDimensionsUniform = igl.getUniformLocation(igl.shaderProgram2, "image_dimensions"));
-    wdebug(igl.shaderProgram2.alphax = igl.getUniformLocation(igl.shaderProgram2, "alphax"));
-    wdebug(igl.shaderProgram2.alphay = igl.getUniformLocation(igl.shaderProgram2, "alphay"));
+    wdebug(igl.shaderProgram2.k1x = igl.getUniformLocation(igl.shaderProgram2, "k1x"));
+    wdebug(igl.shaderProgram2.k1y = igl.getUniformLocation(igl.shaderProgram2, "k1y"));
     wdebug(igl.shaderProgram2.k2x = igl.getUniformLocation(igl.shaderProgram2, "k2x"));
     wdebug(igl.shaderProgram2.k2y = igl.getUniformLocation(igl.shaderProgram2, "k2y"));
     wdebug(igl.shaderProgram2.k3x = igl.getUniformLocation(igl.shaderProgram2, "k3x"));
@@ -396,8 +396,8 @@ function drawScene(gl) {
         e = 0;
         f = 0;
     }
-    wdebug(gl.uniform1fv(gl.shaderProgram.alphax, new Float32Array([a])));
-    wdebug(gl.uniform1fv(gl.shaderProgram.alphay, new Float32Array([b])));
+    wdebug(gl.uniform1fv(gl.shaderProgram.k1x, new Float32Array([a])));
+    wdebug(gl.uniform1fv(gl.shaderProgram.k1y, new Float32Array([b])));
     wdebug(gl.uniform1fv(gl.shaderProgram.k2x, new Float32Array([c])));
     wdebug(gl.uniform1fv(gl.shaderProgram.k2y, new Float32Array([d])));
     wdebug(gl.uniform1fv(gl.shaderProgram.k3x, new Float32Array([e])));
@@ -444,8 +444,8 @@ function drawScene(gl) {
         e = 0;
         f = 0;
     }
-    wdebug(gl.uniform1fv(gl.shaderProgram2.alphax, new Float32Array([a])));
-    wdebug(gl.uniform1fv(gl.shaderProgram2.alphay, new Float32Array([b])));
+    wdebug(gl.uniform1fv(gl.shaderProgram2.k1x, new Float32Array([a])));
+    wdebug(gl.uniform1fv(gl.shaderProgram2.k1y, new Float32Array([b])));
     wdebug(gl.uniform1fv(gl.shaderProgram2.k2x, new Float32Array([c])));
     wdebug(gl.uniform1fv(gl.shaderProgram2.k2y, new Float32Array([d])));
     wdebug(gl.uniform1fv(gl.shaderProgram2.k3x, new Float32Array([e])));
@@ -638,7 +638,7 @@ function drawDiff(array) {
 
 // ~-~-~-~-~-~-~-~-~- UI related handling routines ~-~-~-~-~-~-~-~-~-
 
-var same_alpha_factors = true; // Whether alphax and alphay are forced to be equal
+var same_alpha_factors = true; // Whether k1x and k1y are forced to be equal
 //var same_alpha_factors2 = true;
 function adjustAlphaFactor(direction, value) {
     switch (direction) {
