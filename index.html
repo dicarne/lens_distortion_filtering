@@ -9,6 +9,8 @@
   <script type="text/javascript" src="utils/glMatrix-0.9.5.min.js"></script>
   <script type="text/javascript" src="utils/webgl-utils.js"></script>
   <script type="text/javascript" src="utils/webgl-debug.js"></script>
+  <script src="js/echarts.common.min.js"></script>
+  <script src="js/chart.js"></script>
   <script type="text/javascript" src="node_modules/requirejs/require.js"></script>
   <script type="text/javascript" src="src/Evo.js"></script>
   <link rel="stylesheet" type="text/css" href="css/modernpanel.css">
@@ -290,6 +292,53 @@
           </div>
         </div>
 
+        <div class="col-xs-12 col-sm-12 glcanvas">
+          <div id="chart1" style="width:1000px; height:300px;"></div>
+          <script>
+            var myChart = echarts.init(document.getElementById("chart1"));
+            // 指定图表的配置项和数据
+            var option = {
+              title: {
+                text: 'fitness-3000,0000'
+              },
+              tooltip: {},
+              xAxis: {
+                data: [0]
+              },
+              yAxis: {},
+              series: [{
+                name: 'best fitness',
+                type: 'line',
+                data: [0]
+              },{
+                name: 'worst fitness',
+                type: 'line',
+                data: [0]
+              }],
+              legend: {
+                data: ['best fitness', 'worst fitness']
+              },
+              toolbox: {
+                left: 'center',
+                feature: {
+                  dataZoom: {
+                    yAxisIndex: 'none'
+                  },
+                  restore: {},
+                  saveAsImage: {}
+                }
+              },
+              dataZoom: [{
+                start: 0,
+                end: 100
+              }, {
+                type: 'slider'
+              }],
+            };
+
+            // 使用刚指定的配置项和数据显示图表。
+            myChart.setOption(option);</script>
+        </div>
       </div>
     </div>
   </div>

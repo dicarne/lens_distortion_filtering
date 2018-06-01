@@ -543,6 +543,8 @@ function paintLoop() {
 
         //GreedTick();
         EvoTick();
+
+        
     }
 }
 
