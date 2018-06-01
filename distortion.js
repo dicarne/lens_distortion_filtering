@@ -484,7 +484,7 @@ function drawJudge(gl) {
     wdebug(gl.bindBuffer(gl.ARRAY_BUFFER, gl.vboId));
     wdebug(gl.useProgram(gl.shaderProgram));
 
-    
+
     wdebug(gl.vertexAttribPointer(gl.shaderProgram.inPosition, 4, gl.FLOAT, false, 10 * 4, 0));
     wdebug(gl.vertexAttribPointer(gl.shaderProgram.inColor, 4, gl.FLOAT, false, 10 * 4, 4 * 4));
     wdebug(gl.vertexAttribPointer(gl.shaderProgram.inTextureCoord, 2, gl.FLOAT, false, 10 * 4, 8 * 4));
@@ -540,20 +540,28 @@ function paintLoop() {
         drawScene(gl3);
         Judge();
     } else {
-        if (trainCount <= 50) {
-            train1();
-        } else if (trainCount <= 100) {
-            train2();
-        } else if (trainCount <= 150) {
-            train3();
-        } else {
-            console.log('study end');
-            showing = true;
-            isFirstTime = true;
-            trainCount = 0;
-        }
+
+        //GreedTick();
+        EvoTick();
     }
 }
+
+function GreedTick(){
+
+    if (trainCount <= 50) {
+        train1();
+    } else if (trainCount <= 100) {
+        train2();
+    } else if (trainCount <= 150) {
+        train3();
+    } else {
+        console.log('study end');
+        showing = true;
+        isFirstTime = true;
+        trainCount = 0;
+    }
+}
+
 var compare = {};
 compare.width = 256;
 compare.height = 256;
@@ -641,6 +649,9 @@ function drawDiff(array) {
 var same_alpha_factors = true; // Whether k1x and k1y are forced to be equal
 //var same_alpha_factors2 = true;
 function adjustAlphaFactor(direction, value) {
+    adjustAlphaFactorBase(direction, value);
+}
+function adjustAlphaFactorBase(direction, value) {
     switch (direction) {
         case 'scale': {
             scale = value;
@@ -716,6 +727,8 @@ function reset() {
 
     document.getElementById("scale_value").value = scale;
     document.getElementById("scale_slider").value = scale;
+
+    showing = true;
 }
 // ~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-
 
@@ -744,9 +757,17 @@ var isFirstTime = true;
 var lastValue = {};
 var loss = 0;
 var trainCount = 0;
+var start = false;
 function study() {
-    console.log('start study!');
-    showing = false;
+    start = !start;
+    if (start) {
+        console.log('start study!');
+        showing = false;
+        StartEvo();
+    } else {
+        showing = true;
+    }
+
 }
 var scale = 50;
 
@@ -764,7 +785,7 @@ function train1() {
 
     var ch1 = (Math.random() - 0.5) * scale + denormal(lastValue.k1);
 
-    adjustAlphaFactor('k1', ch1);
+    adjustAlphaFactorBase('k1', ch1);
 
     drawScene(gl2);
     drawScene(gl);
@@ -779,7 +800,7 @@ function train1() {
         //console.log('roll back');
         k1x = lastValue.k1;
     }
-    adjustAlphaFactor('k1', denormal(k1x));
+    adjustAlphaFactorBase('k1', denormal(k1x));
 
 }
 
@@ -790,7 +811,7 @@ function train2() {
 
     var ch2 = (Math.random() - 0.5) * scale + denormal(lastValue.k2);
 
-    adjustAlphaFactor('k2', ch2);
+    adjustAlphaFactorBase('k2', ch2);
 
     drawScene(gl2);
     drawScene(gl);
@@ -805,7 +826,7 @@ function train2() {
         //console.log('roll back');
         k2x = lastValue.k2;
     }
-    adjustAlphaFactor('k2', denormal(k2x));
+    adjustAlphaFactorBase('k2', denormal(k2x));
 
 }
 
@@ -816,7 +837,7 @@ function train3() {
 
     var ch3 = (Math.random() - 0.5) * scale + denormal(lastValue.k3);
 
-    adjustAlphaFactor('k3', ch3);
+    adjustAlphaFactorBase('k3', ch3);
 
     drawScene(gl2);
     drawScene(gl);
@@ -831,7 +852,7 @@ function train3() {
         //console.log('roll back');
         k3x = lastValue.k3;
     }
-    adjustAlphaFactor('k3', denormal(k3x));
+    adjustAlphaFactorBase('k3', denormal(k3x));
 
 }
 
@@ -842,7 +863,7 @@ function denormal(value) {
     return value / 0.01 / maximum_alpha;
 }
 
-function wdebug(func){
+function wdebug(func) {
     ctx = WebGLDebugUtils.makeDebugContext(func);
 }
 
