@@ -11,6 +11,7 @@ function EvoTick() {
     var sta = evo.Tick();
     if (sta === -1) {
         showing = true;
+        evo.showBest();
         evo.Selection();
         var fit = 255 * 3 * 256 * 256 - evo.population[0].fitness
         evo.Crossover();
@@ -28,7 +29,7 @@ function EvoTick() {
 
 var max_chromosome = 0b10011100001111;
 var chromosome_length = 14;
-
+var bestk1 = 0, bestk2 = 0;
 class Evo {
 
     constructor() {
@@ -63,6 +64,7 @@ class Evo {
             }
             this.population.push(pop);
         }
+        bestfit = this.population[0];
     }
 
     TickInit() {
@@ -102,59 +104,15 @@ class Evo {
      * 选择
      */
     Selection() {
-        //RandomChoose
-        var rateList = [];
-        var totalFitness = this.population.reduce((p, c) => p + c.fitness, 0);
-        this.population.forEach(pop => {
-            rateList.push((pop.fitness / totalFitness));
-        });
-        for (var i = 1; i < rateList.length; i++) {
-            rateList[i] += rateList[i - 1];
-        }
-        var newpopulation = [];
-        while (newpopulation.length <= this.population_count) {
-            var hitTarget = Math.random();
-            var index = 0;
-            for (index = 0; rateList[index] <= hitTarget; index++) { }
-            /*var newpop={
-                pk1: this.population[index].pk1,
-                pk2: this.population[index].pk2,
-                fitness: this.population[index].fitness,
-            }*/
-            newpopulation.push({
-                pk1: this.population[index].pk1,
-                pk2: this.population[index].pk2,
-                fitness: this.population[index].fitness,
-            });
-        }
-        this.population = newpopulation;
+        //this.SelectBest();
+        this.RandomChoose();
     }
     /**
      * 交换片段
      */
     Crossover() {
-        this.population.forEach(pop => {
-            if (Math.random() <= this.cross_rate) {
-                for (var count = 0; count < 7; count++) {
-                    var targetPop = this.population[parseInt(Math.random() * this.population_count)];
-                    var targetIndex = parseInt(Math.random() * chromosome_length);
-                    var targetBIt = GetBit(targetPop.pk1, targetIndex);
-                    var thisBit = GetBit(pop.pk1, targetIndex);
-                    targetPop.pk1 = SetBit(targetPop.pk1, targetIndex, thisBit);
-                    pop.pk1 = SetBit(pop.pk1, targetIndex, targetBIt);
-                }
-            }
-            if (Math.random() <= this.cross_rate) {
-                for (var count = 0; count < 7; count++) {
-                    var targetPop = this.population[parseInt(Math.random() * this.population_count)];
-                    var targetIndex = parseInt(Math.random() * chromosome_length);
-                    var targetBIt = GetBit(targetPop.pk2, targetIndex);
-                    var thisBit = GetBit(pop.pk2, targetIndex);
-                    targetPop.pk2 = SetBit(targetPop.pk2, targetIndex, thisBit);
-                    pop.pk2 = SetBit(pop.pk2, targetIndex, targetBIt);
-                }
-            }
-        });
+        this.CrossoverContinuous();
+        //this.CrossoverScatter();
     }
     /**
      * 变异
@@ -179,11 +137,47 @@ class Evo {
             }
         });
     }
+    /**
+     * 画出最佳的
+     */
+    showBest() {
 
-    judge() {
+        this.population.forEach(item => {
+            if (item.fitness > bestfit.fitness) bestfit = item;
+        });
 
+        bestk1 = bestfit.pk1 / 10000;
+        bestk2 = bestfit.pk2 / 10000;
+        drawBest(glbest);
     }
-
+    /**
+     * 轮盘法随机选择保留的个体
+     */
+    RandomChoose() {
+        var rateList = [];
+        var totalFitness = this.population.reduce((p, c) => p + c.fitness, 0);
+        this.population.forEach(pop => {
+            rateList.push((pop.fitness / totalFitness));
+        });
+        for (var i = 1; i < rateList.length; i++) {
+            rateList[i] += rateList[i - 1];
+        }
+        var newpopulation = [];
+        while (newpopulation.length <= this.population_count) {
+            var hitTarget = Math.random();
+            var index = 0;
+            for (index = 0; rateList[index] <= hitTarget; index++) { }
+            newpopulation.push({
+                pk1: this.population[index].pk1,
+                pk2: this.population[index].pk2,
+                fitness: this.population[index].fitness,
+            });
+        }
+        this.population = newpopulation;
+    }
+    /**
+     * 选择最棒的四个个体，进行复制
+     */
     SelectBest() {
         this.population.sort((a, b) => a.fitness - b.fitness);
         this.population = this.population.slice(0, 3);
@@ -197,6 +191,62 @@ class Evo {
             }
             this.population.push(new_pop);
         }
+    }
+    /**
+     * 交换染色体片段
+     */
+    CrossoverContinuous() {
+        this.population.forEach(pop => {
+            if (Math.random() <= this.cross_rate) {
+                var startIndex = parseInt(Math.random * 7);
+                for (var count = 0; count < 7; count++) {
+                    var targetPop = this.population[parseInt(Math.random() * this.population_count)];
+                    var targetIndex = startIndex + count;
+                    var targetBIt = GetBit(targetPop.pk1, targetIndex);
+                    var thisBit = GetBit(pop.pk1, targetIndex);
+                    targetPop.pk1 = SetBit(targetPop.pk1, targetIndex, thisBit);
+                    pop.pk1 = SetBit(pop.pk1, targetIndex, targetBIt);
+                }
+            }
+            if (Math.random() <= this.cross_rate) {
+                var startIndex = parseInt(Math.random * 7);
+                for (var count = 0; count < 7; count++) {
+                    var targetPop = this.population[parseInt(Math.random() * this.population_count)];
+                    var targetIndex = startIndex + count;
+                    var targetBIt = GetBit(targetPop.pk2, targetIndex);
+                    var thisBit = GetBit(pop.pk2, targetIndex);
+                    targetPop.pk2 = SetBit(targetPop.pk2, targetIndex, thisBit);
+                    pop.pk2 = SetBit(pop.pk2, targetIndex, targetBIt);
+                }
+            }
+        });
+    }
+    /**
+     * 交换不连续片段
+     */
+    CrossoverScatter() {
+        this.population.forEach(pop => {
+            if (Math.random() <= this.cross_rate) {
+                for (var count = 0; count < 4; count++) {
+                    var targetPop = this.population[parseInt(Math.random() * this.population_count)];
+                    var targetIndex = parseInt(Math.random() * chromosome_length);
+                    var targetBIt = GetBit(targetPop.pk1, targetIndex);
+                    var thisBit = GetBit(pop.pk1, targetIndex);
+                    targetPop.pk1 = SetBit(targetPop.pk1, targetIndex, thisBit);
+                    pop.pk1 = SetBit(pop.pk1, targetIndex, targetBIt);
+                }
+            }
+            if (Math.random() <= this.cross_rate) {
+                for (var count = 0; count < 4; count++) {
+                    var targetPop = this.population[parseInt(Math.random() * this.population_count)];
+                    var targetIndex = parseInt(Math.random() * chromosome_length);
+                    var targetBIt = GetBit(targetPop.pk2, targetIndex);
+                    var thisBit = GetBit(pop.pk2, targetIndex);
+                    targetPop.pk2 = SetBit(targetPop.pk2, targetIndex, thisBit);
+                    pop.pk2 = SetBit(pop.pk2, targetIndex, targetBIt);
+                }
+            }
+        });
     }
 }
 
@@ -229,12 +279,12 @@ function UpdateChart1() {
     var myChart = echarts.init(document.getElementById("chart1"));
     var maxfit = evo.population[0].fitness;
     var minfit = maxfit;
-    evo.population.forEach(pop=>{
-        if(pop.fitness>maxfit) maxfit = pop.fitness;
-        if(pop.fitness<minfit) minfit = pop.fitness;
+    evo.population.forEach(pop => {
+        if (pop.fitness > maxfit) maxfit = pop.fitness;
+        if (pop.fitness < minfit) minfit = pop.fitness;
     });
-    fitlist.push(maxfit-30000000);
-    worsefitlist.push(minfit-30000000);
+    fitlist.push(maxfit - 30000000);
+    worsefitlist.push(minfit - 30000000);
     genlist.push(cur_count);
     myChart.setOption({
         xAxis: {
@@ -245,17 +295,11 @@ function UpdateChart1() {
             name: 'best fitness',
             type: 'line',
             data: fitlist
-          },{
+        }, {
             name: 'worst fitness',
             type: 'line',
             data: worsefitlist
-          }],
-        dataZoom: [{
-            start: 0,
-            end: 100
-          }, {
-            type: 'slider'
-          }],
+        }],
     })
 
 }

@@ -3,6 +3,7 @@ var gl2;
 var glt;
 var gl3;
 var glcom;
+var glbest;
 // control realtime-show
 var showing = true;
 function webGLStart() {
@@ -60,6 +61,18 @@ function webGLStart() {
     if (!glcom) {
         alert("Could not initialize");
     }
+    var canvas6 = document.getElementById("best-canvas");
+    try {
+        glbest = canvas6.getContext("experimental-webgl");
+
+        //glcom = canvas5.getContext("2d");
+        glbest.viewportWidth = canvas6.width;
+        glbest.viewportHeight = canvas6.height;
+        glbest.rendercount = 6;
+    } catch (e) { }
+    if (!glbest) {
+        alert("Could not initialize");
+    }
     gl.mvMatrix = mat4.create(); // Warning: does not default to identity
     gl.pMatrix = mat4.create();  // Warning: does not default to identity    
     gl2.mvMatrix = mat4.create();
@@ -70,10 +83,13 @@ function webGLStart() {
     gl3.pMatrix = mat4.create();
     glcom.mvMatrix = mat4.create();
     glcom.pMatrix = mat4.create();
+    glbest.mvMatrix = mat4.create();
+    glbest.pMatrix = mat4.create();
     webGLStart_inside(gl);
     webGLStart_inside(gl2);
     webGLStart_inside(glt);
     webGLStart_inside(gl3);
+    webGLStart_inside(glbest);
     setupQuad(glcom);
     initCompareShader(glcom);
     initCompareTexture(glcom);
@@ -381,6 +397,7 @@ function drawScene(gl) {
     // Bind vertex data and set vertex attributes (as from a VAO)
     wdebug(gl.bindBuffer(gl.ARRAY_BUFFER, gl.vboId));
     var a, b, c, d;
+
     if (gl.rendercount <= 2) {
         a = k1x;
         b = k1y;
@@ -472,7 +489,110 @@ function drawScene(gl) {
     wdebug(gl.bindBuffer(gl.ARRAY_BUFFER, null));
     wdebug(gl.bindTexture(gl.TEXTURE_2D, null));
 }
+function drawBest(gl) {
+    wdebug(gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight));
 
+    if (textureIsSafeToRender == false) {
+        console.log("Still can't render stuff if the texture hasn't been loaded yet");
+        return;
+    }
+    wdebug(gl.useProgram(gl.shaderProgram));
+    // Set matrix uniforms
+    mat4.perspective(45, gl.viewportWidth / gl.viewportHeight, 0.1, 100.0, gl.pMatrix);
+    mat4.identity(gl.mvMatrix);
+    mat4.translate(gl.mvMatrix, [0.0, 0.0, -1.2]);
+    wdebug(gl.uniformMatrix4fv(gl.shaderProgram.pMatrixUniform, false, gl.pMatrix));
+    wdebug(gl.uniformMatrix4fv(gl.shaderProgram.mvMatrixUniform, false, gl.mvMatrix));
+
+    // Set image dimensions uniform
+    wdebug(gl.uniform2fv(gl.shaderProgram.imageDimensionsUniform, gl.imageDimensions));
+    wdebug(gl.bindTexture(gl.TEXTURE_2D, gl.textureId));
+    wdebug(gl.activeTexture(gl.TEXTURE0));
+    var sampler2D_loc = gl.getUniformLocation(gl.shaderProgram, "texture_diffuse");
+
+    wdebug(gl.uniform1i(sampler2D_loc, 0));
+
+    // Bind vertex data and set vertex attributes (as from a VAO)
+    wdebug(gl.bindBuffer(gl.ARRAY_BUFFER, gl.vboId));
+    var a, b, c, d;
+    console.log(bestk1);
+    a = bestk1;
+    b = bestk1;
+    c = bestk2;
+    d = bestk2;
+    e = 0;
+    f = 0;
+
+
+
+    wdebug(gl.uniform1fv(gl.shaderProgram.k1x, new Float32Array([a])));
+    wdebug(gl.uniform1fv(gl.shaderProgram.k1y, new Float32Array([b])));
+    wdebug(gl.uniform1fv(gl.shaderProgram.k2x, new Float32Array([c])));
+    wdebug(gl.uniform1fv(gl.shaderProgram.k2y, new Float32Array([d])));
+    wdebug(gl.uniform1fv(gl.shaderProgram.k3x, new Float32Array([e])));
+    wdebug(gl.uniform1fv(gl.shaderProgram.k3y, new Float32Array([f])));
+    wdebug(gl.bindFramebuffer(gl.FRAMEBUFFER, gl.FBOs[0]));
+    wdebug(gl.vertexAttribPointer(gl.shaderProgram.inPosition, 4, gl.FLOAT, false, 10 * 4, 0));
+    wdebug(gl.vertexAttribPointer(gl.shaderProgram.inColor, 4, gl.FLOAT, false, 10 * 4, 4 * 4));
+
+    wdebug(gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, gl.vboiId));
+    wdebug(gl.vertexAttribPointer(gl.shaderProgram.inTextureCoord, 2, gl.FLOAT, false, 10 * 4, 8 * 4));
+
+    wdebug(gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT));
+    wdebug(gl.drawElements(gl.TRIANGLES, gl.indices_count, gl.UNSIGNED_SHORT, 0));
+    wdebug(gl.bindTexture(gl.TEXTURE_2D, gl.textures[0]));
+
+    /*---------------------------------------------------------------*/
+    wdebug(gl.useProgram(gl.shaderProgram2));
+
+    wdebug(gl.uniformMatrix4fv(gl.shaderProgram2.pMatrixUniform, false, gl.pMatrix));
+    wdebug(gl.uniformMatrix4fv(gl.shaderProgram2.mvMatrixUniform, false, gl.mvMatrix));
+
+    // Set image dimensions uniform
+    wdebug(gl.uniform2fv(gl.shaderProgram2.imageDimensionsUniform, gl.imageDimensions));
+    //wdebug(gl.bindTexture(gl.TEXTURE_2D, gl.textureId));
+    //wdebug(gl.activeTexture(gl.TEXTURE0));
+    var sampler2D_loc = gl.getUniformLocation(gl.shaderProgram2, "texture_diffuse");
+
+    wdebug(gl.uniform1i(sampler2D_loc, 0));
+
+    // Bind vertex data and set vertex attributes (as from a VAO)
+    //wdebug(gl.bindBuffer(gl.ARRAY_BUFFER, gl.vboId));
+    a = k1xa;
+    b = k1ya;
+    c = k2xa;
+    d = k2ya;
+    e = k3xa;
+    f = k3ya;
+
+    wdebug(gl.uniform1fv(gl.shaderProgram2.k1x, new Float32Array([a])));
+    wdebug(gl.uniform1fv(gl.shaderProgram2.k1y, new Float32Array([b])));
+    wdebug(gl.uniform1fv(gl.shaderProgram2.k2x, new Float32Array([c])));
+    wdebug(gl.uniform1fv(gl.shaderProgram2.k2y, new Float32Array([d])));
+    wdebug(gl.uniform1fv(gl.shaderProgram2.k3x, new Float32Array([e])));
+    wdebug(gl.uniform1fv(gl.shaderProgram2.k3y, new Float32Array([f])));
+    wdebug(gl.bindFramebuffer(gl.FRAMEBUFFER, gl.FBOs[1]));
+    wdebug(gl.vertexAttribPointer(gl.shaderProgram2.inPosition, 4, gl.FLOAT, false, 10 * 4, 0));
+    wdebug(gl.vertexAttribPointer(gl.shaderProgram2.inColor, 4, gl.FLOAT, false, 10 * 4, 4 * 4));
+
+    wdebug(gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, gl.vboiId));
+    wdebug(gl.vertexAttribPointer(gl.shaderProgram2.inTextureCoord, 2, gl.FLOAT, false, 10 * 4, 8 * 4));
+
+    wdebug(gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT));
+    wdebug(gl.drawElements(gl.TRIANGLES, gl.indices_count, gl.UNSIGNED_SHORT, 0));
+    wdebug(gl.bindTexture(gl.TEXTURE_2D, gl.textures[1]));
+
+
+    wdebug(gl.bindFramebuffer(gl.FRAMEBUFFER, null));
+
+    wdebug(gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT));
+    wdebug(gl.drawElements(gl.TRIANGLES, gl.indices_count, gl.UNSIGNED_SHORT, 0));
+    //gl.pixels = new Uint8Array(gl.textureId.image.width * gl.textureId.image.height * 4);
+    //gl.readPixels(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight, gl.RGBA, gl.UNSIGNED_BYTE, gl.pixels);
+    wdebug(gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null));
+    wdebug(gl.bindBuffer(gl.ARRAY_BUFFER, null));
+    wdebug(gl.bindTexture(gl.TEXTURE_2D, null));
+}
 function drawJudge(gl) {
 
     wdebug(gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight));
@@ -540,15 +660,12 @@ function paintLoop() {
         drawScene(gl3);
         Judge();
     } else {
-
         //GreedTick();
         EvoTick();
-
-        
     }
 }
 
-function GreedTick(){
+function GreedTick() {
 
     if (trainCount <= 50) {
         train1();
@@ -577,6 +694,7 @@ function Judge() {
     drawJudge(glcom);
     //drawDiff(compare);
 }
+
 function red_predict() {
     var sum = 0;
     var maxpixcels = compare.width * compare.height * 4;
@@ -731,6 +849,8 @@ function reset() {
     document.getElementById("scale_slider").value = scale;
 
     showing = true;
+    fitlist = [];
+    worsefitlist = [];
 }
 // ~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-
 
@@ -760,6 +880,7 @@ var lastValue = {};
 var loss = 0;
 var trainCount = 0;
 var start = false;
+var bestfit = 0;
 function study() {
     start = !start;
     if (start) {

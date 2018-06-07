@@ -125,8 +125,14 @@ a:active {
 
 .col-sm-6
 {
-    margin-bottom: 15px;
-    margin-top: 15px;
+    padding-bottom: 15px;
+    padding-top: 15px;
+}
+
+.col-sm-12
+{
+    padding-bottom: 15px;
+    padding-top: 15px;
 }
 
 .valueshowr

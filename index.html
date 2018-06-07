@@ -292,54 +292,87 @@
           </div>
         </div>
 
-        <div class="col-xs-12 col-sm-12 glcanvas">
-          <div id="chart1" style="width:1000px; height:300px;"></div>
-          <script>
-            var myChart = echarts.init(document.getElementById("chart1"));
-            // 指定图表的配置项和数据
-            var option = {
-              title: {
-                text: 'fitness-3000,0000'
-              },
-              tooltip: {},
-              xAxis: {
-                data: [0]
-              },
-              yAxis: {},
-              series: [{
-                name: 'best fitness',
-                type: 'line',
-                data: [0]
-              },{
-                name: 'worst fitness',
-                type: 'line',
-                data: [0]
-              }],
-              legend: {
-                data: ['best fitness', 'worst fitness']
-              },
-              toolbox: {
-                left: 'center',
-                feature: {
-                  dataZoom: {
-                    yAxisIndex: 'none'
-                  },
-                  restore: {},
-                  saveAsImage: {}
-                }
-              },
-              dataZoom: [{
-                start: 0,
-                end: 100
-              }, {
-                type: 'slider'
-              }],
-            };
+        <div class="pull-left col-xs-12 col-sm-6">
+          <div class="glcanvas">
+            <div class="canvastag">最佳</div>
+            <canvas id="best-canvas" style="border: none;" width="256" height="256"></canvas>
+          </div>
+        </div>
 
-            // 使用刚指定的配置项和数据显示图表。
-            myChart.setOption(option);</script>
+      </div>
+      <div class="row">
+        <div class="pull-left col-xs-12 col-sm-12">
+          <div id="chart1" class="glcanvas" style="height:300px;">
+            <script>
+              var myChart = echarts.init(document.getElementById("chart1"));
+              // 指定图表的配置项和数据
+              var option = {
+                title: {
+                  text: 'fitness-3000,0000'
+                },
+                tooltip: {},
+                xAxis: {
+                  data: [0]
+                },
+                yAxis: {},
+                series: [{
+                  name: 'best fitness',
+                  type: 'line',
+                  data: [0]
+                }, {
+                  name: 'worst fitness',
+                  type: 'line',
+                  data: [0]
+                }],
+                legend: {
+                  data: ['best fitness', 'worst fitness']
+                },
+                toolbox: {
+                  left: 'center',
+                  feature: {
+                    dataZoom: {
+                      yAxisIndex: 'none'
+                    },
+                    restore: {},
+                    saveAsImage: {}
+                  }
+                },
+                dataZoom: [{
+                  start: 0,
+                  end: 100
+                }, {
+                  type: 'slider'
+                }],
+              };
+              // 使用刚指定的配置项和数据显示图表。
+              myChart.setOption(option);</script>
+          </div>
         </div>
       </div>
+      <!--
+      <div class="row">
+        <div class="pull-left col-xs-12 col-sm-12">
+          <div class="glcanvas">
+            <div id="chart2" style="width:256px; height:256px;">
+              <script>
+                var chart2 = echarts.init(document.getElementById("chart2"));
+                chart2.setOption({
+                  angleAxis: {
+                    type: 'category',
+                    data: ['周一', '周二', '周三', '周四', '周五', '周六', '周日'],
+                    z: 10
+                  },
+                  radiusAxis: {
+                  },
+                  polar: {
+                  },
+                })
+              </script>
+            </div>
+          </div>
+        </div>
+      </div>
+      -->
     </div>
   </div>
   <div class="footer">
