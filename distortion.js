@@ -4,6 +4,7 @@ var glt;
 var gl3;
 var glcom;
 var glbest;
+var glbestcom;
 // control realtime-show
 var showing = true;
 function webGLStart() {
@@ -73,6 +74,18 @@ function webGLStart() {
     if (!glbest) {
         alert("Could not initialize");
     }
+    var canvas7 = document.getElementById("bestcampare-canvas");
+    try {
+        glbestcom = canvas7.getContext("experimental-webgl");
+
+        //glcom = canvas5.getContext("2d");
+        glbestcom.viewportWidth = canvas7.width;
+        glbestcom.viewportHeight = canvas7.height;
+        glbestcom.rendercount = 5;
+    } catch (e) { }
+    if (!glbestcom) {
+        alert("Could not initialize");
+    }
     gl.mvMatrix = mat4.create(); // Warning: does not default to identity
     gl.pMatrix = mat4.create();  // Warning: does not default to identity    
     gl2.mvMatrix = mat4.create();
@@ -85,6 +98,8 @@ function webGLStart() {
     glcom.pMatrix = mat4.create();
     glbest.mvMatrix = mat4.create();
     glbest.pMatrix = mat4.create();
+    glbestcom.mvMatrix = mat4.create();
+    glbestcom.pMatrix = mat4.create();
     webGLStart_inside(gl);
     webGLStart_inside(gl2);
     webGLStart_inside(glt);
@@ -93,6 +108,11 @@ function webGLStart() {
     setupQuad(glcom);
     initCompareShader(glcom);
     initCompareTexture(glcom);
+    setupQuad(glbestcom);
+    initCompareShader(glbestcom);
+    initCompareTexture(glbestcom);
+    glcom.init = true;
+    glbestcom.init = true;
     paintLoop();
 }
 
@@ -587,8 +607,8 @@ function drawBest(gl) {
 
     wdebug(gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT));
     wdebug(gl.drawElements(gl.TRIANGLES, gl.indices_count, gl.UNSIGNED_SHORT, 0));
-    //gl.pixels = new Uint8Array(gl.textureId.image.width * gl.textureId.image.height * 4);
-    //gl.readPixels(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight, gl.RGBA, gl.UNSIGNED_BYTE, gl.pixels);
+    gl.pixels = new Uint8Array(gl.textureId.image.width * gl.textureId.image.height * 4);
+    gl.readPixels(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight, gl.RGBA, gl.UNSIGNED_BYTE, gl.pixels);
     wdebug(gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null));
     wdebug(gl.bindBuffer(gl.ARRAY_BUFFER, null));
     wdebug(gl.bindTexture(gl.TEXTURE_2D, null));
@@ -632,7 +652,7 @@ function initCompareTexture(igl) {
     texture = igl.createTexture();
     igl.compareTexture = texture;
 }
-var init = true;
+
 function createTexture(igl, array) {
 
     igl.activeTexture(igl.TEXTURE0);
@@ -642,12 +662,12 @@ function createTexture(igl, array) {
         igl.TEXTURE_2D, 0, igl.RGBA, 256, 256, 0, igl.RGBA,
         igl.UNSIGNED_BYTE, new Uint8Array(array)
     ));
-    if (init) {
+    if (igl.init) {
         wdebug(igl.texParameteri(igl.TEXTURE_2D, igl.TEXTURE_WRAP_S, igl.CLAMP_TO_EDGE));
         wdebug(igl.texParameteri(igl.TEXTURE_2D, igl.TEXTURE_WRAP_T, igl.CLAMP_TO_EDGE));
         wdebug(igl.texParameteri(igl.TEXTURE_2D, igl.TEXTURE_MIN_FILTER, igl.LINEAR));
         wdebug(igl.texParameteri(igl.TEXTURE_2D, igl.TEXTURE_MAG_FILTER, igl.LINEAR));
-        init = false;
+        igl.init = false;
     }
 }
 
@@ -695,6 +715,12 @@ function Judge() {
     //drawDiff(compare);
 }
 
+var bestcompare = {};
+bestcompare.width = 256;
+bestcompare.height = 256;
+bestcompare.data = new Array(256 * 256 * 4);
+bestcompare.pixelsdata = new Array(256 * 256);
+
 function red_predict() {
     var sum = 0;
     var maxpixcels = compare.width * compare.height * 4;
@@ -709,6 +735,8 @@ function red_predict() {
     }
     return sum;
 }
+
+
 function red() {
     var sum = 0;
     var maxpixcels = compare.width * compare.height * 4;
@@ -724,6 +752,26 @@ function red() {
             compare.data[i + 2] = gl3.pixels[i + 2];
 
             compare.data[i + 3] = 255;
+            sum += diff;
+        }
+    }
+    return sum;
+}
+function red2() {
+    var sum = 0;
+    var maxpixcels = bestcompare.width * bestcompare.height * 4;
+    for (var x = 0; x < bestcompare.width; x++) {
+        for (var y = 0; y < bestcompare.height; y++) {
+
+            var i = (y * bestcompare.width + x) * 4;  //calculate index
+            var diff = Math.abs(glbest.pixels[i] - gl3.pixels[i]) + Math.abs(glbest.pixels[i + 1] - gl3.pixels[i + 1]) + Math.abs(glbest.pixels[i + 2] - gl3.pixels[i + 2]);
+            var diff2 = gl3.pixels[i] + diff;
+            if (diff2 > 255) diff2 = 255;
+            bestcompare.data[i] = diff2;
+            bestcompare.data[i + 1] = gl3.pixels[i + 1];
+            bestcompare.data[i + 2] = gl3.pixels[i + 2];
+
+            bestcompare.data[i + 3] = 255;
             sum += diff;
         }
     }

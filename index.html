@@ -299,6 +299,13 @@
           </div>
         </div>
 
+        <div class="pull-left col-xs-12 col-sm-6">
+          <div class="glcanvas">
+            <div class="canvastag">最佳比较</div>
+            <canvas id="bestcampare-canvas" style="border: none;" width="256" height="256"></canvas>
+          </div>
+        </div>
+
       </div>
       <div class="row">
         <div class="pull-left col-xs-12 col-sm-12">
@@ -308,7 +315,7 @@
               // 指定图表的配置项和数据
               var option = {
                 title: {
-                  text: 'fitness-3000,0000'
+                  text: 'fitness'
                 },
                 tooltip: {},
                 xAxis: {
@@ -319,23 +326,9 @@
                   name: 'best fitness',
                   type: 'line',
                   data: [0]
-                }, {
-                  name: 'worst fitness',
-                  type: 'line',
-                  data: [0]
                 }],
                 legend: {
-                  data: ['best fitness', 'worst fitness']
-                },
-                toolbox: {
-                  left: 'center',
-                  feature: {
-                    dataZoom: {
-                      yAxisIndex: 'none'
-                    },
-                    restore: {},
-                    saveAsImage: {}
-                  }
+                  data: ['best fitness']
                 },
                 dataZoom: [{
                   start: 0,
@@ -349,30 +342,28 @@
           </div>
         </div>
       </div>
-      <!--
+
       <div class="row">
         <div class="pull-left col-xs-12 col-sm-12">
           <div class="glcanvas">
-            <div id="chart2" style="width:256px; height:256px;">
+            <div id="chart2" style="height:512px;">
               <script>
                 var chart2 = echarts.init(document.getElementById("chart2"));
                 chart2.setOption({
-                  angleAxis: {
-                    type: 'category',
-                    data: ['周一', '周二', '周三', '周四', '周五', '周六', '周日'],
-                    z: 10
-                  },
-                  radiusAxis: {
-                  },
-                  polar: {
-                  },
+                  xAxis: {},
+                  yAxis: {},
+                  series: [{
+                    symbolSize: 20,
+                    data: [],
+                    type: 'scatter'
+                  }]
                 })
               </script>
             </div>
           </div>
         </div>
       </div>
-      -->
+
     </div>
   </div>
   <div class="footer">

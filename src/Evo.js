@@ -4,7 +4,8 @@
 function StartEvo() {
     evo.EvoInit();
     evo.TickInit();
-    total_count = 1000;
+    total_count = 100;
+    cur_count = 0;
 }
 
 function EvoTick() {
@@ -42,7 +43,7 @@ class Evo {
      * @param {*} mutate_rate 变异概率
      * @param {*} populations 最大种群
      */
-    EvoInit(tk1 = 0, tk2 = 0, cross_rate = 0.6, mutate_rate = 0.1, populations = 20) {
+    EvoInit(tk1 = 0, tk2 = 0, cross_rate = 0.8, mutate_rate = 0.2, populations = 20) {
         tk1 = parseInt(tk1);
         tk2 = parseInt(tk2);
         if (tk1 < 0 || tk1 > max_chromosome || tk2 < 0 || tk2 > max_chromosome) {
@@ -93,8 +94,8 @@ class Evo {
             return;
         }
 
-        adjustAlphaFactorBase('k1', denormal(this.population[index].pk1 / 10000));
-        adjustAlphaFactorBase('k2', denormal(this.population[index].pk2 / 10000));
+        adjustAlphaFactorBase('k1', denormal(pk2k(this.population[index].pk1)));
+        adjustAlphaFactorBase('k2', denormal(pk2k(this.population[index].pk2)));
         drawScene(gl2);
         Judge();
         this.population[index].fitness = 255 * 3 * 256 * 256 - red_predict();
@@ -146,9 +147,12 @@ class Evo {
             if (item.fitness > bestfit.fitness) bestfit = item;
         });
 
-        bestk1 = bestfit.pk1 / 10000;
-        bestk2 = bestfit.pk2 / 10000;
+        bestk1 = pk2k(bestfit.pk1);
+        bestk2 = pk2k(bestfit.pk2);
         drawBest(glbest);
+        red2();
+        createTexture(glbestcom, bestcompare.data);
+        drawJudge(glbestcom);
     }
     /**
      * 轮盘法随机选择保留的个体
@@ -269,6 +273,10 @@ function GetBit(value, index) {
     return value >> index & 1;
 }
 
+function pk2k(value){
+    return (value/10000-0.5)*0.5;
+}
+
 var evo = new Evo();
 var total_count = 0;
 var cur_count = 0;
@@ -277,14 +285,17 @@ var worsefitlist = [];
 var genlist = [];
 function UpdateChart1() {
     var myChart = echarts.init(document.getElementById("chart1"));
+    var ScatterChart = echarts.init(document.getElementById("chart2"));
     var maxfit = evo.population[0].fitness;
     var minfit = maxfit;
+    var scattermap = [];
     evo.population.forEach(pop => {
         if (pop.fitness > maxfit) maxfit = pop.fitness;
         if (pop.fitness < minfit) minfit = pop.fitness;
+        scattermap.push([pk2k(pop.pk1),pk2k(pop.pk2),((pop.fitness-30000000)/2000000)**2]);
     });
-    fitlist.push(maxfit - 30000000);
-    worsefitlist.push(minfit - 30000000);
+    fitlist.push((maxfit/1000000)-40);
+    worsefitlist.push((( minfit - 30000000)/1000000)**2);
     genlist.push(cur_count);
     myChart.setOption({
         xAxis: {
@@ -295,11 +306,18 @@ function UpdateChart1() {
             name: 'best fitness',
             type: 'line',
             data: fitlist
-        }, {
-            name: 'worst fitness',
-            type: 'line',
-            data: worsefitlist
         }],
+    });
+    ScatterChart.setOption({
+        series: [{
+            symbolSize: function(scattermap){return scattermap[2];},
+            data: scattermap,
+            type: 'scatter'
+          }]
     })
-
+    //, {
+    //    name: 'worst fitness',
+    //    type: 'line',
+    //    data: worsefitlist
+    //}
 }
