@@ -27,8 +27,27 @@
 }
 
 #resetbutton:hover {
-    background-color: #bd5152;
+    background-color: #e99698;
 }
+
+#calculateButton {
+    width: 100px;
+    height: 35px;
+    margin: auto 15px 15px 15px;
+    box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.12), 0px 1px 2px rgba(0, 0, 0, 0.24);
+    border-radius: 2px;
+    background-color: #5241e7;
+    border: none;
+    color: #fff;
+    font-size: 16px;
+    font-family: '微软雅黑';
+    transition: .2s ease-out;
+}
+
+#calculateButton:hover {
+    background-color: #5399da;
+}
+
 
 .changeModeButton{
     width: 100px;
@@ -36,7 +55,7 @@
     margin: auto 15px 15px 15px;
     box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.12), 0px 1px 2px rgba(0, 0, 0, 0.24);
     border-radius: 2px;
-    background-color: #2d4bf5;
+    background-color: #f8bd1a;
     border: none;
     color: #fff;
     font-size: 16px;
@@ -44,8 +63,11 @@
     transition: .2s ease-out;
 }
 .changeModeButton:hover{
-    background-color: #cc66ff;
+    background-color: #ffd07a;
 }
+
+
+
 .slider_panel {
     text-align: center;
 }
@@ -103,8 +125,14 @@ a:active {
 
 .col-sm-6
 {
-    margin-bottom: 15px;
-    margin-top: 15px;
+    padding-bottom: 15px;
+    padding-top: 15px;
+}
+
+.col-sm-12
+{
+    padding-bottom: 15px;
+    padding-top: 15px;
 }
 
 .valueshowr
