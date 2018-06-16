@@ -1,5 +1,4 @@
 
-
 function getShader(gl, id) {
     var shaderScript = document.getElementById(id);
     if (!shaderScript)
@@ -178,7 +177,7 @@ function setupQuad(igl) {
         1.0, 1.0, 1.0, 1.0,     // RGBA
         1.0, 1.0                // UV coords
     ];
-    if (igl.rendercount == 5)
+    if (CheckFlag(igl.renderMode, Simple))
         wdebug(igl.bufferData(igl.ARRAY_BUFFER, new Float32Array(full_vbo_data), igl.STATIC_DRAW));
     else
         wdebug(igl.bufferData(igl.ARRAY_BUFFER, new Float32Array(vbo_data), igl.STATIC_DRAW));
@@ -271,7 +270,7 @@ function drawScene(gl) {
     wdebug(gl.bindBuffer(gl.ARRAY_BUFFER, gl.vboId));
     var a, b, c, d;
 
-    if (gl.rendercount <= 2) {
+    if (CheckFlag(gl.renderMode, Anti_distortion)) {
         a = k1x;
         b = k1y;
         c = k2x;
@@ -319,14 +318,14 @@ function drawScene(gl) {
 
     // Bind vertex data and set vertex attributes (as from a VAO)
     //wdebug(gl.bindBuffer(gl.ARRAY_BUFFER, gl.vboId));
-    if (gl.rendercount == 2 || gl.rendercount == 3) {
+    if (CheckFlag(gl.renderMode, Distor)) {
         a = k1xa;
         b = k1ya;
         c = k2xa;
         d = k2ya;
         e = k3xa;
         f = k3ya;
-    } else if (gl.rendercount == 1 || gl.rendercount == 4) {
+    } else if (CheckFlag(gl.renderMode, Normal)) {
         a = 0;
         b = 0;
         c = 0;
@@ -362,6 +361,7 @@ function drawScene(gl) {
     wdebug(gl.bindBuffer(gl.ARRAY_BUFFER, null));
     wdebug(gl.bindTexture(gl.TEXTURE_2D, null));
 }
+
 function drawBest(gl) {
     wdebug(gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight));
 
@@ -466,6 +466,7 @@ function drawBest(gl) {
     wdebug(gl.bindBuffer(gl.ARRAY_BUFFER, null));
     wdebug(gl.bindTexture(gl.TEXTURE_2D, null));
 }
+
 function drawJudge(gl) {
 
     wdebug(gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight));
@@ -525,6 +526,7 @@ function createTexture(igl, array) {
         igl.init = false;
     }
 }
+
 function initCompareTexture(igl) {
     var texture;
     texture = igl.createTexture();

@@ -1,18 +1,41 @@
-var gl; // gl instance
+var gl;
 var gl2;
 var glt;
 var gl3;
 var glcom;
 var glbest;
 var glbestcom;
-// control realtime-show
+/**
+ *  control realtime-show. 
+ * */
 var showing = true;
 
+var scale = 50;
+
+var maximum_alpha = 0.25;
+/**
+ * renderMode: Do nothing.
+ */
 const Normal = 1<<1;
+/**
+ * Analog lens distortion.
+ */
 const Distor = 1<<2;
+/**
+ * Anti-distortion processing before lens distortion.
+ */
 const Anti_distortion = 1<<3;
+/**
+ * Used to render the texture directly.
+ */
 const Simple = 1<<4;
 
+/**
+ * 获取canvas元素并以此初始化webgl。
+ * Get canvas element and initialize webgl.
+ * @param {string} canvas_name 
+ * @param {number} mode use **Normal**, **Distor**, **Anti_distortion**, or **Simple**, you can combine them.
+ */
 function initWebGLFromCanvas(canvas_name, mode) {
     var gl;
     var canvas = document.getElementById(canvas_name);
@@ -28,35 +51,38 @@ function initWebGLFromCanvas(canvas_name, mode) {
     }
 
     gl.mvMatrix = mat4.create(); // Warning: does not default to identity
-    gl.pMatrix = mat4.create();  // Warning: does not default to identity  
+    gl.pMatrix = mat4.create();  // Warning: does not default to identity 
+    if(CheckFlag(mode,Simple)){
+        setupQuad(gl);
+        initCompareShader(gl);
+        initCompareTexture(gl);
+        gl.init = true;
+    }else{
+        webGLStart_inside(gl);
+    }
     return gl;
 }
 
+/**
+ * 检查是否包含所需标志。Check to see if it contains the desired flag.
+ * @param {number} input The flag you need ti check.
+ * @param {number} flag Target flag.
+ */
+function CheckFlag(input, flag){
+    if((input & flag) === flag) return true;
+    return false;
+}
 
 function webGLStart() {
     judgemode.work = red;
     reset();
-    gl = initWebGLFromCanvas("filter-canvas", 1);
-    gl2 = initWebGLFromCanvas("filter2-canvas", 2);
-    glt = initWebGLFromCanvas("filter0-canvas", 3);
-    gl3 = initWebGLFromCanvas("filter3-canvas", 4);
-    glcom = initWebGLFromCanvas("compare-canvas", 5);
-    glbest = initWebGLFromCanvas("best-canvas", 6);
-    glbestcom = initWebGLFromCanvas("bestcampare-canvas", 5);
-
-    webGLStart_inside(gl);
-    webGLStart_inside(gl2);
-    webGLStart_inside(glt);
-    webGLStart_inside(gl3);
-    webGLStart_inside(glbest);
-    setupQuad(glcom);
-    initCompareShader(glcom);
-    initCompareTexture(glcom);
-    setupQuad(glbestcom);
-    initCompareShader(glbestcom);
-    initCompareTexture(glbestcom);
-    glcom.init = true;
-    glbestcom.init = true;
+    gl = initWebGLFromCanvas("filter-canvas", Anti_distortion | Normal);
+    gl2 = initWebGLFromCanvas("filter2-canvas", Anti_distortion | Distor);
+    glt = initWebGLFromCanvas("filter0-canvas", Normal | Distor);
+    gl3 = initWebGLFromCanvas("filter3-canvas", Normal | Normal);
+    glcom = initWebGLFromCanvas("compare-canvas", Simple);
+    glbest = initWebGLFromCanvas("best-canvas", Normal | Normal);
+    glbestcom = initWebGLFromCanvas("bestcampare-canvas", Simple);
     paintLoop();
 }
 
@@ -68,10 +94,8 @@ function webGLStart_inside(igl) {
     wdebug(igl.clearColor(0.0, 0.0, 0.0, 1.0));
     wdebug(igl.enable(igl.DEPTH_TEST));
 
-
 }
-// end add
-var fboid;
+
 
 var k1x = 0.0;
 var k1xa = 0.0;
@@ -81,13 +105,12 @@ var k2x = 0.0;
 var k2y = 0.0;
 var k2xa = 0.0;
 var k2ya = 0.0;
-var k3x;
-var k3y;
+var k3x = 0.0;
+var k3y = 0.0;
 var k3xa = 0.0;
 var k3ya = 0.0;
 
-var maximum_alpha = 0.25;
-//var shaderProgram;
+
 var textureIsSafeToRender = false;
 
 function paintLoop() {
@@ -234,7 +257,12 @@ function drawDiff(array) {
 // ~-~-~-~-~-~-~-~-~- UI related handling routines ~-~-~-~-~-~-~-~-~-
 
 var same_alpha_factors = true; // Whether k1x and k1y are forced to be equal
-//var same_alpha_factors2 = true;
+
+/**
+ * 调节控制杆以控制相应的畸变系数。Adjust the lever to control the corresponding distortion factor.
+ * @param {string} direction use **scale**, **k1** or **k1a** and so on.
+ * @param {number} value Value is a number from 0 to 100. You may use *denormal()* to convert a decimal.
+ */
 function adjustAlphaFactor(direction, value) {
     adjustAlphaFactorBase(direction, value);
 }
@@ -323,7 +351,6 @@ function reset() {
 
 function debug() {
     trainAll();
-
 }
 var judgemode = {
 
@@ -358,92 +385,7 @@ function study() {
     }
 
 }
-var scale = 50;
 
-function train1() {
-    //console.log('trainning');
-    if (isFirstTime) {
-        console.log('train start');
-        loss = red_predict();;
-        trainCount = 0;
-        isFirstTime = false;
-        showing = false;
-    }
-    trainCount++;
-    lastValue.k1 = k1x;
-
-    var ch1 = (Math.random() - 0.5) * scale + denormal(lastValue.k1);
-
-    adjustAlphaFactorBase('k1', ch1);
-
-    drawScene(gl2);
-    drawScene(gl);
-    var loss2 = red_predict();
-    //console.log(loss2);
-    if (loss2 < loss) {
-        //console.log('success');
-        Judge();
-        lastValue.k1 = k1x;
-        loss = loss2;
-    } else {
-        //console.log('roll back');
-        k1x = lastValue.k1;
-    }
-    adjustAlphaFactorBase('k1', denormal(k1x));
-
-}
-
-function train2() {
-
-    trainCount++;
-    lastValue.k2 = k2x;
-
-    var ch2 = (Math.random() - 0.5) * scale + denormal(lastValue.k2);
-
-    adjustAlphaFactorBase('k2', ch2);
-
-    drawScene(gl2);
-    drawScene(gl);
-    var loss2 = red_predict();
-    //console.log(loss2);
-    if (loss2 < loss) {
-        //console.log('success');
-        Judge();
-        lastValue.k2 = k2x;
-        loss = loss2;
-    } else {
-        //console.log('roll back');
-        k2x = lastValue.k2;
-    }
-    adjustAlphaFactorBase('k2', denormal(k2x));
-
-}
-
-function train3() {
-
-    trainCount++;
-    lastValue.k3 = k3x;
-
-    var ch3 = (Math.random() - 0.5) * scale + denormal(lastValue.k3);
-
-    adjustAlphaFactorBase('k3', ch3);
-
-    drawScene(gl2);
-    drawScene(gl);
-    var loss2 = red_predict();
-    //console.log(loss2);
-    if (loss2 < loss) {
-        //console.log('success');
-        Judge();
-        lastValue.k3 = k3x;
-        loss = loss2;
-    } else {
-        //console.log('roll back');
-        k3x = lastValue.k3;
-    }
-    adjustAlphaFactorBase('k3', denormal(k3x));
-
-}
 
 function normal(value) {
     return (value * 0.01) * maximum_alpha
