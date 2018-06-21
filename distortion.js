@@ -347,6 +347,8 @@ function reset() {
     fitlist = [];
     PSNRList = [];
     worsefitlist = [];
+    RMSEList = [];
+    genlist = [];
 }
 // ~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-
 
