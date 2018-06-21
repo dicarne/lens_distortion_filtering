@@ -345,6 +345,7 @@ function reset() {
 
     showing = true;
     fitlist = [];
+    PSNRList = [];
     worsefitlist = [];
 }
 // ~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-

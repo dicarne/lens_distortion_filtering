@@ -62,6 +62,7 @@ class Evo {
                 pk1: max_chromosome - parseInt(Math.random() * max_chromosome),
                 pk2: max_chromosome - parseInt(Math.random() * max_chromosome),
                 fitness: 0,
+                PSNR: 0,
             }
             this.population.push(pop);
         }
@@ -99,6 +100,7 @@ class Evo {
         drawScene(gl2);
         Judge();
         this.population[index].fitness = 255 * 3 * 256 * 256 - red_predict();
+        this.population[index].PSNR = getPSNR(gl3.pixels, gl2.pixels);
     }
 
     /**
@@ -175,6 +177,7 @@ class Evo {
                 pk1: this.population[index].pk1,
                 pk2: this.population[index].pk2,
                 fitness: this.population[index].fitness,
+                PSNR: this.population[index].PSNR,
             });
         }
         this.population = newpopulation;
@@ -192,6 +195,7 @@ class Evo {
                 pk1: template_pop.pk1,
                 pk2: template_pop.pk2,
                 fitness: template_pop.fitness,
+                PSNR: template_pop.PSNR,
             }
             this.population.push(new_pop);
         }
@@ -273,8 +277,8 @@ function GetBit(value, index) {
     return value >> index & 1;
 }
 
-function pk2k(value){
-    return (value/10000-0.5)*0.5;
+function pk2k(value) {
+    return (value / 10000 - 0.5) * 0.5;
 }
 
 var evo = new Evo();
@@ -283,20 +287,25 @@ var cur_count = 0;
 var fitlist = [];
 var worsefitlist = [];
 var genlist = [];
+var PSNRList = [];
 function UpdateChart1() {
     var myChart = echarts.init(document.getElementById("chart1"));
     var ScatterChart = echarts.init(document.getElementById("chart2"));
     var maxfit = evo.population[0].fitness;
     var minfit = maxfit;
     var scattermap = [];
+    var maxPSNR = evo.population[0].PSNR;
     evo.population.forEach(pop => {
         if (pop.fitness > maxfit) maxfit = pop.fitness;
         if (pop.fitness < minfit) minfit = pop.fitness;
-        scattermap.push([pk2k(pop.pk1),pk2k(pop.pk2),((pop.fitness-30000000)/2000000)**2]);
+        if (pop.PSNR > maxPSNR) maxPSNR = pop.PSNR;
+        scattermap.push([pk2k(pop.pk1), pk2k(pop.pk2), ((pop.fitness - 30000000) / 2000000) ** 2]);
     });
-    fitlist.push((maxfit/1000000)-40);
-    worsefitlist.push((( minfit - 30000000)/1000000)**2);
+    fitlist.push((maxfit / 1000000) - 40);
+    worsefitlist.push(((minfit - 30000000) / 1000000) ** 2);
     genlist.push(cur_count);
+    PSNRList.push(maxPSNR.toFixed(2));
+
     myChart.setOption({
         xAxis: {
             data: genlist
@@ -310,14 +319,27 @@ function UpdateChart1() {
     });
     ScatterChart.setOption({
         series: [{
-            symbolSize: function(scattermap){return scattermap[2];},
+            symbolSize: function (scattermap) { return scattermap[2]; },
             data: scattermap,
             type: 'scatter'
-          }]
-    })
+        }]
+    });
     //, {
     //    name: 'worst fitness',
     //    type: 'line',
     //    data: worsefitlist
     //}
+    let chart3 = echarts.init(document.getElementById("chart3"));
+    chart3.setOption({
+        xAxis: {
+            data: genlist
+        },
+        yAxis: {},
+        series: [{
+            name:"PSNR",
+            data: PSNRList,
+            type: 'bar'
+        }]
+    });
+
 }

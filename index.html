@@ -352,6 +352,9 @@
               <script>
                 var chart2 = echarts.init(document.getElementById("chart2"));
                 chart2.setOption({
+                  title: {
+                    text: '分布'
+                  },
                   xAxis: {},
                   yAxis: {},
                   series: [{
@@ -360,6 +363,43 @@
                     type: 'scatter'
                   }]
                 })
+              </script>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="pull-left col-xs-12 col-sm-12">
+          <div class="glcanvas">
+            <div id="chart3" style="height:512px;">
+              <script>
+                var chart3 = echarts.init(document.getElementById("chart3"));
+                chart3.setOption({
+                  title: {
+                    text: 'PSNR'
+                  },
+                  xAxis: {
+                    data: []
+                  },
+                  yAxis: {},
+                  series: [{
+                    data: [],
+                    type: 'bar',
+                    label: {
+                      normal: {
+                        show: true,
+                        position: 'top'
+                      },
+                    }
+                  }],
+                  dataZoom: [{
+                    start: 0,
+                    end: 100
+                  }, {
+                    type: 'slider'
+                  }],
+                });
               </script>
             </div>
           </div>
