@@ -12,7 +12,7 @@ var showing = true;
 
 var scale = 50;
 
-var maximum_alpha = 0.25;
+var maximum_alpha = 0.5;
 /**
  * renderMode: Do nothing.
  */

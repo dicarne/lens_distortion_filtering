@@ -33,6 +33,7 @@ class JudgeTools {
      */
     getRMSE() {
         this.RMSE = Math.sqrt(this.getMSE(this.img1, this.img2));
+        //return this.getMSE(this.img1, this.img2);
         return this.RMSE;
     }
     /**

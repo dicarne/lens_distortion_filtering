@@ -284,7 +284,7 @@ function GetBit(value, index) {
 }
 
 function pk2k(value) {
-    return (value / 10000 - 0.5) * 0.5;
+    return (value / 10000 - 0.5);
 }
 
 var evo = new Evo();
