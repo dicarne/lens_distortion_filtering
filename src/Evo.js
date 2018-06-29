@@ -105,6 +105,12 @@ class Evo {
         this.population[index].PSNR = jt.getPSNR();
         this.population[index].RMSE = jt.getRMSE();
         this.population[index].fitness = this.population[index].PSNR;
+        /*
+        let lsd = new LSD(gl2.pixels);
+        let lsdpix = lsd.getLines();
+        createTexture(glline,lsdpix);
+        drawJudge(glline);
+        */
     }
 
     /**
@@ -159,6 +165,11 @@ class Evo {
         red2();
         createTexture(glbestcom, bestcompare.data);
         drawJudge(glbestcom);
+
+        let lsd = new LSD(glbest.pixels);
+        let lsdpix = lsd.getLines();
+        createTexture(glline,lsdpix);
+        drawJudge(glline);
     }
     /**
      * 轮盘法随机选择保留的个体

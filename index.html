@@ -14,12 +14,13 @@
   <script src="js/chart.js"></script>
   <script src="src/judge.js"></script>
   <script src="src/LSD.js"></script>
-  <script type="text/javascript" src="node_modules/requirejs/require.js"></script>
+
   <script type="text/javascript" src="src/Evo.js"></script>
   <link rel="stylesheet" type="text/css" href="css/modernpanel.css">
   <!--
     <script type="text/javascript" src="model/tfjs090.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@0.8.0"> </script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@0.8.0"> </script> 
+     <script type="text/javascript" src="node_modules/requirejs/require.js"></script>
   -->
   <script id="simple-fs" type="x-shader/x-fragment">
     precision mediump float;
@@ -306,6 +307,13 @@
           <div class="glcanvas">
             <div class="canvastag">最佳比较</div>
             <canvas id="bestcampare-canvas" style="border: none;" width="256" height="256"></canvas>
+          </div>
+        </div>
+        
+        <div class="pull-left col-xs-12 col-sm-6">
+          <div class="glcanvas">
+            <div class="canvastag">直线</div>
+            <canvas id="line-canvas" style="border: none;" width="256" height="256"></canvas>
           </div>
         </div>
 

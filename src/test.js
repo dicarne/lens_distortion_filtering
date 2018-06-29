@@ -1,3 +1,2 @@
-var a = [1,5,2,4,9];
-var c = a.sort((a,c)=>a>c);
-console.log(c)
+var list = [{a:1,b:0},{a:2,b:2},{a:3,b:12}];
+console.log(list.reduce((p,c)=>p+c.a,0));

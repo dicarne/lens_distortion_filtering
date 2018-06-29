@@ -5,6 +5,7 @@ var gl3;
 var glcom;
 var glbest;
 var glbestcom;
+var glline;
 /**
  *  control realtime-show. 
  * */
@@ -83,6 +84,7 @@ function webGLStart() {
     glcom = initWebGLFromCanvas("compare-canvas", Simple);
     glbest = initWebGLFromCanvas("best-canvas", Normal | Normal);
     glbestcom = initWebGLFromCanvas("bestcampare-canvas", Simple);
+    glline = initWebGLFromCanvas("line-canvas",Simple);
     paintLoop();
 }
 
