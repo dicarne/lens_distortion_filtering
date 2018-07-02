@@ -81,11 +81,12 @@ class LSD {
             }
         }
         this.lines = lines;
-        //this.draw();
-
+        this.draw();
+        /*
         lines.forEach(lineregion => {
             lineregion.rect = this.Rectangle(lineregion);
         });
+        */
         return this.img;
     }
 

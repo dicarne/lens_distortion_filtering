@@ -30,7 +30,7 @@ function EvoTick() {
 
 var max_chromosome = 0b10011100001111;
 var chromosome_length = 14;
-var bestk1 = 0, bestk2 = 0;
+var bestk1 = 0, bestk2 = 0, bestk3 = 0;
 class Evo {
 
     constructor() {
@@ -52,6 +52,7 @@ class Evo {
         }
         this.pk1 = tk1;
         this.pk2 = tk2;
+        this.pk3 = 0;
         this.cross_rate = cross_rate;
         this.mutate_rate = mutate_rate;
         //this.population_count = populations;
@@ -61,6 +62,7 @@ class Evo {
             var pop = {
                 pk1: max_chromosome - parseInt(Math.random() * max_chromosome),
                 pk2: max_chromosome - parseInt(Math.random() * max_chromosome),
+                pk3: max_chromosome - parseInt(Math.random() * max_chromosome),
                 fitness: 0,
                 PSNR: 0,
                 RMSE: 0,
@@ -98,6 +100,7 @@ class Evo {
 
         adjustAlphaFactorBase('k1', denormal(pk2k(this.population[index].pk1)));
         adjustAlphaFactorBase('k2', denormal(pk2k(this.population[index].pk2)));
+        adjustAlphaFactorBase('k3', denormal(pk2k(this.population[index].pk3)));
         drawScene(gl2);
         Judge();
         //this.population[index].fitness = 255 * 3 * 256 * 256 - red_predict();
@@ -133,7 +136,7 @@ class Evo {
     Mutation() {
         this.population.forEach(pop => {
             if (Math.random() <= this.mutate_rate) {
-                for (var count = 0; count < 1; count++) {
+                for (var count = 0; count < 7; count++) {
                     var targetIndex = parseInt(Math.random() * chromosome_length);
                     var thisBit = GetBit(pop.pk1, targetIndex);
                     var newBit = (thisBit === 0) ? 1 : 0;
@@ -141,11 +144,19 @@ class Evo {
                 }
             }
             if (Math.random() <= this.mutate_rate) {
-                for (var count = 0; count < 1; count++) {
+                for (var count = 0; count < 7; count++) {
                     var targetIndex = parseInt(Math.random() * chromosome_length);
                     var thisBit = GetBit(pop.pk2, targetIndex);
                     var newBit = (thisBit === 0) ? 1 : 0;
                     pop.pk2 = SetBit(pop.pk2, targetIndex, newBit);
+                }
+            }
+            if (Math.random() <= this.mutate_rate) {
+                for (var count = 0; count < 7; count++) {
+                    var targetIndex = parseInt(Math.random() * chromosome_length);
+                    var thisBit = GetBit(pop.pk3, targetIndex);
+                    var newBit = (thisBit === 0) ? 1 : 0;
+                    pop.pk3 = SetBit(pop.pk3, targetIndex, newBit);
                 }
             }
         });
@@ -161,15 +172,17 @@ class Evo {
 
         bestk1 = pk2k(bestfit.pk1);
         bestk2 = pk2k(bestfit.pk2);
+        bestk3 = pk2k(bestfit.pk3);
         drawBest(glbest);
         red2();
         createTexture(glbestcom, bestcompare.data);
         drawJudge(glbestcom);
-
+        /*
         let lsd = new LSD(glbest.pixels);
         let lsdpix = lsd.getLines();
         createTexture(glline,lsdpix);
         drawJudge(glline);
+        */
     }
     /**
      * 轮盘法随机选择保留的个体
@@ -191,6 +204,7 @@ class Evo {
             newpopulation.push({
                 pk1: this.population[index].pk1,
                 pk2: this.population[index].pk2,
+                pk3: this.population[index].pk3,
                 fitness: this.population[index].fitness,
                 PSNR: this.population[index].PSNR,
                 RMSE: this.population[index].RMSE,
@@ -210,6 +224,7 @@ class Evo {
             var new_pop = {
                 pk1: template_pop.pk1,
                 pk2: template_pop.pk2,
+                pk3: this.population[index].pk3,
                 fitness: template_pop.fitness,
                 PSNR: template_pop.PSNR,
                 RMSE: template_pop.RMSE,
@@ -244,6 +259,17 @@ class Evo {
                     pop.pk2 = SetBit(pop.pk2, targetIndex, targetBIt);
                 }
             }
+            if (Math.random() <= this.cross_rate) {
+                var startIndex = parseInt(Math.random * 7);
+                for (var count = 0; count < 7; count++) {
+                    var targetPop = this.population[parseInt(Math.random() * this.population_count)];
+                    var targetIndex = startIndex + count;
+                    var targetBIt = GetBit(targetPop.pk3, targetIndex);
+                    var thisBit = GetBit(pop.pk3, targetIndex);
+                    targetPop.pk3 = SetBit(targetPop.pk3, targetIndex, thisBit);
+                    pop.pk3 = SetBit(pop.pk3, targetIndex, targetBIt);
+                }
+            }
         });
     }
     /**
@@ -252,7 +278,7 @@ class Evo {
     CrossoverScatter() {
         this.population.forEach(pop => {
             if (Math.random() <= this.cross_rate) {
-                for (var count = 0; count < 4; count++) {
+                for (var count = 0; count < 7; count++) {
                     var targetPop = this.population[parseInt(Math.random() * this.population_count)];
                     var targetIndex = parseInt(Math.random() * chromosome_length);
                     var targetBIt = GetBit(targetPop.pk1, targetIndex);
@@ -262,13 +288,23 @@ class Evo {
                 }
             }
             if (Math.random() <= this.cross_rate) {
-                for (var count = 0; count < 4; count++) {
+                for (var count = 0; count < 7; count++) {
                     var targetPop = this.population[parseInt(Math.random() * this.population_count)];
                     var targetIndex = parseInt(Math.random() * chromosome_length);
                     var targetBIt = GetBit(targetPop.pk2, targetIndex);
                     var thisBit = GetBit(pop.pk2, targetIndex);
                     targetPop.pk2 = SetBit(targetPop.pk2, targetIndex, thisBit);
                     pop.pk2 = SetBit(pop.pk2, targetIndex, targetBIt);
+                }
+            }
+            if (Math.random() <= this.cross_rate) {
+                for (var count = 0; count < 7; count++) {
+                    var targetPop = this.population[parseInt(Math.random() * this.population_count)];
+                    var targetIndex = parseInt(Math.random() * chromosome_length);
+                    var targetBIt = GetBit(targetPop.pk3, targetIndex);
+                    var thisBit = GetBit(pop.pk3, targetIndex);
+                    targetPop.pk3 = SetBit(targetPop.pk3, targetIndex, thisBit);
+                    pop.pk3 = SetBit(pop.pk3, targetIndex, targetBIt);
                 }
             }
         });

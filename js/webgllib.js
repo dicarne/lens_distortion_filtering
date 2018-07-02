@@ -1,4 +1,4 @@
-
+var photoname = "checkboard.png";
 function getShader(gl, id) {
     var shaderScript = document.getElementById(id);
     if (!shaderScript)
@@ -198,7 +198,7 @@ function initTexture(igl) {
     igl.FBOs = [];
     wdebug(igl.textureId = igl.createTexture());
     igl.textureId.image = new Image();
-    igl.textureId.image.src = "assets/testchildsmall.png";
+    igl.textureId.image.src = "assets/"+photoname;
     igl.textureId.image.onload = function () {
         //igl.textureId.image.width = 256;
         //igl.textureId.image.height = 256;
@@ -393,8 +393,8 @@ function drawBest(gl) {
     b = bestk1;
     c = bestk2;
     d = bestk2;
-    e = 0;
-    f = 0;
+    e = bestk3;
+    f = bestk3;
 
 
 

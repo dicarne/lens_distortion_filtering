@@ -81,7 +81,7 @@
       if(i2 >= 0.0 && i2 <= 1.0 && j2 >= 0.0 && j2 <= 1.0)
         gl_FragColor = texture2D(texture_diffuse, vec2(i2, j2));
       else
-        gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
+        gl_FragColor = vec4(0.0, 0.0, 1.0, 1.0);
     }
   </script>
 
@@ -118,8 +118,8 @@
       //float x2 = x / (1.0 - k1x * r - k2x * r * r);
       //float y2 = y / (1.0 - k1y * r - k2y * r * r);
 
-      float x2 = x * (1.0 + k1x * r + k2x * r * r + k3x * r * r);
-      float y2 = y * (1.0 + k1y * r + k2y * r * r + k3y * r * r);
+      float x2 = x * (1.0 - k1x * r - k2x * r * r - k3x * r * r * r * r);
+      float y2 = y * (1.0 - k1y * r - k2y * r * r - k3y * r * r * r * r);
 
       // Forward transform
       // float x2 = x * (1.0 - k1x * r);
@@ -132,7 +132,7 @@
       if(i2 >= 0.0 && i2 <= 1.0 && j2 >= 0.0 && j2 <= 1.0)
         gl_FragColor = texture2D(texture_diffuse, vec2(i2, j2));
       else
-        gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
+        gl_FragColor = vec4(0.0, 0.0, 1.0, 1.0);
     }
   </script>
   <script id="simple-vs" type="x-shader/x-vertex">
@@ -275,17 +275,19 @@
           </div>
         </div>
 
-        <div class="pull-left col-xs-12 col-sm-6">
-          <div class="glcanvas">
-            <div class="canvastag">原图</div>
-            <canvas id="filter3-canvas" style="border: none;" width="256" height="256"></canvas>
-          </div>
-        </div>
 
         <div class="pull-left col-xs-12 col-sm-6">
           <div class="glcanvas">
             <div class="canvastag">原图经过反畸变算法后的图像</div>
             <canvas id="filter-canvas" style="border: none;" width="256" height="256"></canvas>
+          </div>
+        </div>
+
+        
+        <div class="pull-left col-xs-12 col-sm-6">
+          <div class="glcanvas">
+            <div class="canvastag"></div>
+            <canvas style="border: none;" width="256" height="256"></canvas>
           </div>
         </div>
 
@@ -309,14 +311,21 @@
             <canvas id="bestcampare-canvas" style="border: none;" width="256" height="256"></canvas>
           </div>
         </div>
-        
+        <div class="pull-left col-xs-12 col-sm-6">
+          <div class="glcanvas">
+            <div class="canvastag">原图</div>
+            <canvas id="filter3-canvas" style="border: none;" width="256" height="256"></canvas>
+          </div>
+        </div>
+
+        <!--
         <div class="pull-left col-xs-12 col-sm-6">
           <div class="glcanvas">
             <div class="canvastag">直线</div>
             <canvas id="line-canvas" style="border: none;" width="256" height="256"></canvas>
           </div>
         </div>
-
+      -->
       </div>
       <div class="row">
         <div class="pull-left col-xs-12 col-sm-12">
@@ -393,7 +402,7 @@
                   },
                   yAxis: {},
                   series: [{
-                    name:"PSNR",
+                    name: "PSNR",
                     data: [],
                     type: 'bar',
                     label: {
@@ -402,8 +411,8 @@
                         position: 'top'
                       },
                     }
-                  },{
-                    name:"RMSE",
+                  }, {
+                    name: "RMSE",
                     data: [],
                     type: 'bar',
                     label: {
