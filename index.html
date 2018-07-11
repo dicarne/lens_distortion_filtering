@@ -118,8 +118,8 @@
       //float x2 = x / (1.0 - k1x * r - k2x * r * r);
       //float y2 = y / (1.0 - k1y * r - k2y * r * r);
 
-      float x2 = x * (1.0 - k1x * r - k2x * r * r - k3x * r * r * r * r);
-      float y2 = y * (1.0 - k1y * r - k2y * r * r - k3y * r * r * r * r);
+      float x2 = x * (1.0 + k1x * r + k2x * r * r + k3x * r * r * r * r);
+      float y2 = y * (1.0 + k1y * r + k2y * r * r + k3y * r * r * r * r);
 
       // Forward transform
       // float x2 = x * (1.0 - k1x * r);
@@ -283,7 +283,7 @@
           </div>
         </div>
 
-        
+
         <div class="pull-left col-xs-12 col-sm-6">
           <div class="glcanvas">
             <div class="canvastag"></div>
@@ -362,7 +362,22 @@
           </div>
         </div>
       </div>
+      <div class="row">
+        <div class="pull-left col-xs-12 col-sm-12">
+          <div id="kshow" class="glcanvas" style="height:300px;">
+            <div class="canvastag">k1</div>
+            <input type="text" class="valueshowr" id="k1s" style="vertical-align:middle; width: 50px; text-align: center;" value="50"
+              readonly>
+            <div class="canvastag">k2</div>
+            <input type="text" class="valueshowr" id="k2s" style="vertical-align:middle; width: 50px; text-align: center;" value="50"
+              readonly>
+            <div class="canvastag">k3</div>
+            <input type="text" class="valueshowr" id="k3s" style="vertical-align:middle; width: 50px; text-align: center;" value="50"
+              readonly>
 
+          </div>
+        </div>
+      </div>
       <div class="row">
         <div class="pull-left col-xs-12 col-sm-12">
           <div class="glcanvas">

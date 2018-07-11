@@ -4,9 +4,10 @@
 function StartEvo() {
     evo.EvoInit();
     evo.TickInit();
-    total_count = 100;
+    total_count = 50;
     cur_count = 0;
 }
+var bestpsnr = 0;
 
 function EvoTick() {
     var sta = evo.Tick();
@@ -43,7 +44,7 @@ class Evo {
      * @param {*} mutate_rate 变异概率
      * @param {*} populations 最大种群
      */
-    EvoInit(tk1 = 0, tk2 = 0, cross_rate = 0.8, mutate_rate = 0.2, populations = 20) {
+    EvoInit(tk1 = 0, tk2 = 0, cross_rate = 0.7, mutate_rate = 0.1) {
         tk1 = parseInt(tk1);
         tk2 = parseInt(tk2);
         if (tk1 < 0 || tk1 > max_chromosome || tk2 < 0 || tk2 > max_chromosome) {
@@ -68,6 +69,7 @@ class Evo {
                 RMSE: 0,
             }
             this.population.push(pop);
+
         }
         bestfit = this.population[0];
     }
@@ -80,7 +82,7 @@ class Evo {
 
     Tick() {
         if (this.current_tick >= this.tick_count) {
-            console.log('calculate end.');
+            //console.log('calculate end.');
             return -1;
         }
         this.CalculateFitness(this.current_tick);
@@ -106,14 +108,8 @@ class Evo {
         //this.population[index].fitness = 255 * 3 * 256 * 256 - red_predict();
         let jt = new JudgeTools(gl3.pixels, gl2.pixels);
         this.population[index].PSNR = jt.getPSNR();
-        this.population[index].RMSE = jt.getRMSE();
+        //this.population[index].RMSE = jt.getRMSE();
         this.population[index].fitness = this.population[index].PSNR;
-        /*
-        let lsd = new LSD(gl2.pixels);
-        let lsdpix = lsd.getLines();
-        createTexture(glline,lsdpix);
-        drawJudge(glline);
-        */
     }
 
     /**
@@ -173,16 +169,14 @@ class Evo {
         bestk1 = pk2k(bestfit.pk1);
         bestk2 = pk2k(bestfit.pk2);
         bestk3 = pk2k(bestfit.pk3);
+        if (bestfit.PSNR > bestpsnr) {
+            console.log(`k1:${bestk1},k2:${bestk2},k3:${bestk3},PSNR:${bestfit.PSNR}`);
+            bestpsnr = bestfit;
+        }
         drawBest(glbest);
         red2();
         createTexture(glbestcom, bestcompare.data);
         drawJudge(glbestcom);
-        /*
-        let lsd = new LSD(glbest.pixels);
-        let lsdpix = lsd.getLines();
-        createTexture(glline,lsdpix);
-        drawJudge(glline);
-        */
     }
     /**
      * 轮盘法随机选择保留的个体
@@ -343,8 +337,15 @@ var genlist = [];
 var PSNRList = [];
 var RMSEList = [];
 function UpdateChart1() {
+    //return;
     var myChart = echarts.init(document.getElementById("chart1"));
     var ScatterChart = echarts.init(document.getElementById("chart2"));
+    var k1t = document.getElementById("k1s");
+    var k2t = document.getElementById("k2s");
+    var k3t = document.getElementById("k3s");
+    k1t.value = bestpsnr.pk1;
+    k2t.value = bestpsnr.pk2;
+    k3t.value = bestpsnr.pk3;
     var maxfit = evo.population[0].fitness;
     var minfit = maxfit;
     var scattermap = [];

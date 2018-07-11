@@ -388,7 +388,7 @@ function drawBest(gl) {
     // Bind vertex data and set vertex attributes (as from a VAO)
     wdebug(gl.bindBuffer(gl.ARRAY_BUFFER, gl.vboId));
     var a, b, c, d;
-    console.log(bestk1);
+    //console.log(bestk1);
     a = bestk1;
     b = bestk1;
     c = bestk2;
